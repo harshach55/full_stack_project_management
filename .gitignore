@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+build/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+
+# Expo / React Native
+.expo/
+web-build/
+*.apk
+*.aab
+*.jks
+*.keystore
+*.p8
+*.p12
+*.mobileprovision
+
+# Environment files (commit only .env.example)
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Deployment tooling
+.vercel/
