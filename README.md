@@ -25,5 +25,7 @@ A project and task management application with a responsive web app and an Andro
 - [Traceability matrix](docs/traceability-matrix.md)
 - [Screens and user flows](docs/user-flows.md)
 - [Deployment](docs/deployment.md)
+- [Testing](docs/testing.md)
+- [Security audit](docs/security-audit.md)
 
 Setup and environment instructions are in each app's README; production setup is in [docs/deployment.md](docs/deployment.md).

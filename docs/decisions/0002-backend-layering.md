@@ -39,5 +39,5 @@ Feature modules keep each resource's code together. Keeping the ownership condit
 ## Consequences
 
 - Each service function signature starts with `userId` (except registration and login).
-- Code review checklist for Phase 5 and Phase 9: every Prisma call on `project` or `task` contains the ownership condition.
+- Code review checklist for Phase 5 and Phase 9: every Prisma call on `project` or `task` contains the ownership condition (Phase 9 result: [security-audit.md](../security-audit.md), section 3).
 - Express 5 is used so that errors thrown in async handlers reach the error middleware without wrappers (ADR-0009).

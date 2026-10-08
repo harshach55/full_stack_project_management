@@ -261,7 +261,7 @@ Controller runs `prisma.$queryRaw` with `SELECT 1` under a 2-second timeout and 
 
 Test helpers: create users through `POST /api/auth/register` (mobile mode for a token, web mode for a cookie); sign special tokens directly with the test secret (expired, wrong secret, wrong algorithm, missing claims).
 
-Phase 5 must cover at least:
+Phase 5 must cover at least the list below. The Phase 9 mapping of each item to tests is in [testing.md](testing.md), section 3.
 
 **Auth**
 - register success (web mode sets cookie and returns no token; mobile mode returns token and sets no cookie)

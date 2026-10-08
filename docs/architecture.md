@@ -638,7 +638,7 @@ Anything prefixed `EXPO_PUBLIC_` is readable inside the app package, so it must 
 
 Test database: a disposable local PostgreSQL in Docker, never the Supabase database. Docker is used only for this test database; the application itself is not containerized. Migrations are applied before the run; tables are truncated between test files. Test helpers create users and log in through the real endpoints to get cookies and tokens.
 
-Security test set (all required):
+Security test set (all required; mapped to tests in [testing.md](testing.md), section 3):
 - each protected route returns 401 without a session; invalid, expired (signed with a past `exp`) and revoked tokens rejected
 - Alice cannot read, update or delete Bob's project or task (404)
 - Alice cannot create a task in Bob's project (404)

@@ -13,6 +13,8 @@ Planning and design documents for the Project Management System (web, Android, s
 | [api-contract.md](api-contract.md) | REST API contract: conventions, authentication, every endpoint, error codes, CORS, rate limits |
 | [backend-design.md](backend-design.md) | Backend implementation blueprint: modules, middleware order, services, errors, logging, configuration, test contract |
 | [deployment.md](deployment.md) | Production setup: Supabase, Render, Vercel, migrations, environment variables, TLS, verification, rollback |
+| [testing.md](testing.md) | Test suites, how to run them, coverage, manual and deployed verification, non-functional review |
+| [security-audit.md](security-audit.md) | Phase 9 security audit: ADR-0010 measures, ownership review, logging, dependency audit, known risks |
 | [decisions/](decisions/) | Architecture decision records (ADRs) |
 
 ## Architecture decision records
@@ -33,8 +35,6 @@ Planning and design documents for the Project Management System (web, Android, s
 | [0012](decisions/0012-client-application-architecture.md) | Client application architecture (web and mobile) |
 | [0013](decisions/0013-database-schema-design.md) | Database schema design |
 | [0014](decisions/0014-api-contract-and-error-handling.md) | API contract and error handling details |
-
-Later phases add testing documents to this folder.
 
 ## Conventions
 
