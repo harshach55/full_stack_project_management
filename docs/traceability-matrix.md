@@ -49,6 +49,33 @@ Status: `planned` until implemented, then `done` with a link to the test file.
 
 Non-functional requirements (WEB, API, DB, DOC, SUB) are verified by review against [requirements.md](requirements.md) during Phase 9.
 
+## API contract mapping
+
+Links requirements to the sections of [api-contract.md](api-contract.md) that define their behavior. Test cases are listed in [backend-design.md](backend-design.md) section 14.
+
+| Req | Endpoint(s) | Contract section | Key status codes / error codes |
+|---|---|---|---|
+| AUTH-01, AUTH-02, PD-16 | `POST /api/auth/register` | 5.1, 4 | 201; 400 `VALIDATION_ERROR`; 409 `EMAIL_ALREADY_EXISTS`; 429 |
+| AUTH-03 | register, login | 5.1, 5.2 | password never in any response |
+| AUTH-04 | `POST /api/auth/login` | 5.2 | 200; 401 `INVALID_CREDENTIALS`; 429 |
+| AUTH-05, PD-18 | `POST /api/auth/logout` | 5.3 | 204; repeat 401 `TOKEN_REVOKED` |
+| AUTH-06 | `GET /api/auth/me` | 5.4 | 200; 401 |
+| AUTH-07, PD-14, MOB-10 | all protected routes | 2.1, 2.4 | 401 `TOKEN_EXPIRED` / `TOKEN_REVOKED` / `UNAUTHENTICATED` |
+| AUTH-08, SYNC-01, SYNC-02 | all endpoints, both transports | 2.2, 11 | same endpoints for web and mobile |
+| AUTH-09 | register, login, logout | 2.2, 2.5 | `pm_session` cookie; no token in web bodies |
+| AUTH-10, MOB-09 | register, login | 2.5 | `X-Client-Type: mobile`; 403 with `Origin` |
+| PROJ-01 to PROJ-06 | `/api/projects`, `/api/projects/{id}` | 6 | 200/201/204; 400; 404 |
+| TASK-01 to TASK-08, PD-06 to PD-08, PD-11 | `/api/tasks`, `/api/tasks/{id}` | 7 | 200/201/204; 400 (partial `PUT`, `projectId`); 404 |
+| DASH-01, DASH-02, PD-01 | `GET /api/dashboard` | 8.1 | 200 |
+| SRCH-01 to SRCH-05, PD-12, PD-13 | `GET /api/projects`, `GET /api/tasks` | 4, 6.1, 7.1 | 200 `[]` when empty; 400 invalid filters |
+| SEC-01, SEC-02, PD-17 | all protected routes | 2.3, 6, 7 | 401; 404 for other users' resources |
+| SEC-03, SEC-04, API-06 | all routes with input | 4 | 400 `VALIDATION_ERROR` / `INVALID_JSON`; 413; 415 |
+| SEC-06 | login, register | 10 | 429 `RATE_LIMITED` |
+| SEC-07, API-05 | `POST`, `PUT`, `DELETE` | 9 | 403 `ORIGIN_NOT_ALLOWED` |
+| API-03, SEC-11 | all routes | 3 | error body with `code`, `message`, `requestId` |
+| API-07 | `/api/docs`, `/api/docs.json` | 12 | public |
+| (operations) | `GET /api/health` | 8.2 | 200; 503 |
+
 ## Database design mapping
 
 Links requirements to the schema elements in [database-design.md](database-design.md) that support them. Planned database-level tests are listed where the database itself enforces the rule.

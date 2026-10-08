@@ -17,7 +17,8 @@ The API must return consistent, safe errors (API-03, SEC-11). Clients need stabl
   - Zod error: 400 `VALIDATION_ERROR` with field details
   - malformed JSON body: 400 `INVALID_JSON`
   - body too large: 413 `PAYLOAD_TOO_LARGE`
-  - JWT expired / invalid / revoked: 401 `TOKEN_EXPIRED` / `UNAUTHENTICATED`
+  - JWT expired / revoked / otherwise invalid: 401 `TOKEN_EXPIRED` / `TOKEN_REVOKED` / `UNAUTHENTICATED` (revoked code added in ADR-0014)
+  - body not JSON: 415 `UNSUPPORTED_MEDIA_TYPE`
   - wrong credentials: 401 `INVALID_CREDENTIALS`
   - origin rejected: 403 `ORIGIN_NOT_ALLOWED`
   - missing or not owned: 404 `NOT_FOUND`; unknown route: 404 `ROUTE_NOT_FOUND`

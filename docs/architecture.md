@@ -247,7 +247,7 @@ JWT access tokens, 7-day lifetime, no refresh tokens (PD-14). Logout revokes one
 **Authenticated request** (`authenticate` middleware)
 1. Read the token: `Authorization: Bearer` header if present, otherwise the session cookie.
 2. Verify signature, algorithm (HS256 only) and expiry. Expired: 401 `TOKEN_EXPIRED`. Invalid: 401 `UNAUTHENTICATED`.
-3. Look up `jti` in `RevokedToken` (primary key lookup). Found: 401 `UNAUTHENTICATED`.
+3. Look up `jti` in `RevokedToken` (primary key lookup). Found: 401 `TOKEN_REVOKED` (ADR-0014).
 4. Set `req.auth = { userId, jti, exp, method: 'bearer' | 'cookie' }`.
 
 **Logout** (`POST /api/auth/logout`): insert the current `jti` with its `exp` into `RevokedToken`; for cookie sessions also clear the cookie. Other tokens of the same user are untouched, so web and mobile sessions are independent. Expired rows are deleted by a cleanup step that runs on server start and periodically (exact mechanism in Phase 5).
@@ -369,7 +369,8 @@ All API errors use one JSON shape with a stable machine-readable `code`, a human
 |---|---|---|
 | Validation / malformed input | 400 | `VALIDATION_ERROR`, `INVALID_JSON` |
 | Body too large | 413 | `PAYLOAD_TOO_LARGE` |
-| Authentication | 401 | `UNAUTHENTICATED`, `TOKEN_EXPIRED`, `INVALID_CREDENTIALS` |
+| Body not JSON | 415 | `UNSUPPORTED_MEDIA_TYPE` |
+| Authentication | 401 | `UNAUTHENTICATED`, `TOKEN_EXPIRED`, `TOKEN_REVOKED`, `INVALID_CREDENTIALS` |
 | Rejected origin (CSRF check) | 403 | `ORIGIN_NOT_ALLOWED` |
 | Not found or not owned; unknown route | 404 | `NOT_FOUND`, `ROUTE_NOT_FOUND` |
 | Conflict | 409 | `EMAIL_ALREADY_EXISTS` |
@@ -603,7 +604,7 @@ Variable names are final; values never appear in the repository. `.env.example` 
 | `CORS_ALLOWED_ORIGINS` | no | Comma-separated origins (web origin, local dev origins); also used by the origin check |
 | `COOKIE_SECURE` | no | `true` in production; may be `false` for local HTTP |
 | `TRUST_PROXY_HOPS` | no | `1` on Render, `0` locally |
-| `RATE_LIMIT_LOGIN_MAX`, `RATE_LIMIT_WINDOW_MS` | no | Rate limit tuning |
+| `RATE_LIMIT_WINDOW_MS`, `RATE_LIMIT_LOGIN_ACCOUNT_MAX`, `RATE_LIMIT_LOGIN_IP_MAX`, `RATE_LIMIT_REGISTER_IP_MAX` | no | Rate limit tuning (defaults in [api-contract.md](api-contract.md) section 10) |
 | `LOG_LEVEL` | no | pino level |
 
 **Web** (`apps/web`)

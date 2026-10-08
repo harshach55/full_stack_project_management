@@ -10,6 +10,8 @@ Planning and design documents for the Project Management System (web, Android, s
 | [user-flows.md](user-flows.md) | Screen inventory and main user flows for web and mobile |
 | [architecture.md](architecture.md) | System architecture: components, flows, security, deployment, environment, testing, risks |
 | [database-design.md](database-design.md) | Database design: tables, constraints, indexes, ER diagram, ownership queries, migration strategy |
+| [api-contract.md](api-contract.md) | REST API contract: conventions, authentication, every endpoint, error codes, CORS, rate limits |
+| [backend-design.md](backend-design.md) | Backend implementation blueprint: modules, middleware order, services, errors, logging, configuration, test contract |
 | [decisions/](decisions/) | Architecture decision records (ADRs) |
 
 ## Architecture decision records
@@ -29,8 +31,9 @@ Planning and design documents for the Project Management System (web, Android, s
 | [0011](decisions/0011-deployment-architecture.md) | Deployment architecture |
 | [0012](decisions/0012-client-application-architecture.md) | Client application architecture (web and mobile) |
 | [0013](decisions/0013-database-schema-design.md) | Database schema design |
+| [0014](decisions/0014-api-contract-and-error-handling.md) | API contract and error handling details |
 
-Later phases add API contract, testing and deployment documents to this folder.
+Later phases add testing and deployment documents to this folder.
 
 ## Conventions
 

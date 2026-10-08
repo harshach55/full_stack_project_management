@@ -12,7 +12,7 @@ A plain JWT stays valid until it expires, so logout needs server-side state.
 ## Decision
 
 - **Token:** JWT signed with HS256 using `JWT_SECRET`. Claims: `sub` (user id), `jti` (random UUID per issued token), `iat`, `exp` (7 days). No personal data in the token.
-- **Verification:** signature, `algorithms: ['HS256']` only, expiry. Expired tokens return 401 `TOKEN_EXPIRED`; any other failure returns 401 `UNAUTHENTICATED`.
+- **Verification:** signature, `algorithms: ['HS256']` only, expiry. Expired tokens return 401 `TOKEN_EXPIRED`; revoked tokens return 401 `TOKEN_REVOKED` (refined in ADR-0014); any other failure returns 401 `UNAUTHENTICATED`.
 - **Revocation:** a `RevokedToken` table (`jti` primary key, `userId`, `expiresAt`). Logout inserts the current token's `jti`. The authenticate middleware rejects tokens whose `jti` is in the table. Rows are deleted after `expiresAt` passes, because an expired token is rejected anyway.
 - **Token source:** `Authorization: Bearer` header first, otherwise the session cookie. One middleware handles both clients.
 - **Passwords:** bcryptjs, cost 12, input limited to 72 bytes (bcrypt ignores bytes after 72). Login compares against a dummy hash when the email is unknown, so response time does not reveal which emails exist.
@@ -40,6 +40,6 @@ The denylist gives real per-token logout with one primary-key lookup per request
 ## Consequences
 
 - Phase 3 adds the `RevokedToken` model.
-- Phase 4 defines the error codes `UNAUTHENTICATED`, `TOKEN_EXPIRED`, `INVALID_CREDENTIALS`.
+- Phase 4 defines the error codes `UNAUTHENTICATED`, `TOKEN_EXPIRED`, `TOKEN_REVOKED`, `INVALID_CREDENTIALS` (ADR-0014).
 - Phase 5 implements the cleanup of expired revocation rows (on startup and on an interval).
 - Tests sign tokens with a past expiry to cover `TOKEN_EXPIRED`.
