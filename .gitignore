@@ -21,10 +21,11 @@ web-build/
 *.p12
 *.mobileprovision
 
-# Environment files (commit only .env.example)
+# Environment files (commit only the .example templates)
 .env
 .env.*
 !.env.example
+!.env.*.example
 
 # Logs
 *.log

@@ -1,0 +1,13 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+onlyBuiltDependencies:
+  - "@prisma/client"
+  - "@prisma/engines"
+  - esbuild
+  - prisma
+
+# Analytics postinstall script pulled in by swagger-ui-express; never run it.
+ignoredBuiltDependencies:
+  - "@scarf/scarf"

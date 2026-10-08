@@ -1,0 +1,47 @@
+# Local PostgreSQL for development and automated tests only.
+# The application itself is not containerized.
+#
+# The database password is not stored in this repository. Set PM_LOCAL_DB_PASSWORD
+# in a git-ignored .env file next to this file (see .env.example) or in your shell.
+# Ports are bound to 127.0.0.1, so the database is reachable only from this machine.
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: pm
+      POSTGRES_PASSWORD: ${PM_LOCAL_DB_PASSWORD:?Set PM_LOCAL_DB_PASSWORD (see .env.example and apps/api/README.md)}
+      POSTGRES_DB: pm_dev
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+      - pm_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pm -d pm_dev"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  # Optional: transaction-mode connection pooler, used to check that the API
+  # works behind a pooler configured like Supabase's transaction mode.
+  # Start with: docker compose --profile pooler up -d
+  pgbouncer:
+    image: edoburu/pgbouncer:latest
+    profiles: ["pooler"]
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_USER: pm
+      DB_PASSWORD: ${PM_LOCAL_DB_PASSWORD:?Set PM_LOCAL_DB_PASSWORD (see .env.example and apps/api/README.md)}
+      POOL_MODE: transaction
+      AUTH_TYPE: scram-sha-256
+      MAX_CLIENT_CONN: "100"
+      DEFAULT_POOL_SIZE: "10"
+    ports:
+      - "127.0.0.1:6433:5432"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pm_postgres_data:
