@@ -13,6 +13,8 @@ coverage/
 
 # Expo / React Native
 .expo/
+.expo-export/
+expo-env.d.ts
 web-build/
 *.apk
 *.aab

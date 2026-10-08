@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "Project Manager",
+    "slug": "project-manager",
+    "scheme": "projectmanager",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "platforms": [
+      "android"
+    ],
+    "android": {
+      "package": "com.example.projectmanager"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-status-bar"
+    ],
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}
