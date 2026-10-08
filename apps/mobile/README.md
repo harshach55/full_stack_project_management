@@ -47,8 +47,9 @@ Create `apps/mobile/.env.local` (git-ignored) from [`.env.example`](.env.example
 
 - **Android emulator**, API running on this computer: `http://10.0.2.2:4000`. Inside the emulator `localhost` is the emulator itself; `10.0.2.2` is the host computer.
 - **Physical Android phone** with Expo Go on the same Wi-Fi: `http://<computer-LAN-IP>:4000`, and allow port 4000 through the computer's firewall.
+- **Production API:** `https://pm-api-lb5m.onrender.com` (see [docs/deployment.md](../../docs/deployment.md)).
 
-Expo reads the file when it starts; restart Expo after changing it.
+Expo reads the file when it starts; restart Expo with `--clear` after changing it, so Metro does not reuse a bundle built with the old value.
 
 ## Running locally
 
@@ -62,6 +63,13 @@ Expo reads the file when it starts; restart Expo after changing it.
 3. Open the app:
    - **Emulator:** with an Android emulator running (Android Studio), press `a` in the Expo terminal.
    - **Phone:** install Expo Go (it must support SDK 57) and scan the QR code shown by Expo.
+
+If Expo Go fails with "Failed to download remote update", Expo may be advertising an address the phone cannot download from, for example on a computer with two network interfaces in the same network. Start Expo with the address of the interface the computer uses to reach the phone:
+
+```powershell
+$env:REACT_NATIVE_PACKAGER_HOSTNAME = '<computer-LAN-IP>'
+pnpm --filter @pm/mobile start --clear
+```
 
 ## Scripts (`pnpm --filter @pm/mobile <script>`)
 

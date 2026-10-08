@@ -15,7 +15,7 @@ Next.js (App Router) + TypeScript + Tailwind CSS + TanStack Query. It uses the s
 |---|---|---|
 | `API_ORIGIN` | `apps/web/.env.local` (git-ignored), or the hosting platform | Origin of the Express API, for example `http://localhost:4000` locally. Server-side only (no `NEXT_PUBLIC_` prefix); read when the app is built. Defaults to `http://localhost:4000` in development; required for production builds. |
 
-The web app holds no secrets. See [`.env.example`](.env.example).
+The web app holds no secrets. See [`.env.example`](.env.example). On Vercel, `API_ORIGIN` is set for the Production environment to the Render API origin; see [docs/deployment.md](../../docs/deployment.md), section 6.
 
 ## Local development
 

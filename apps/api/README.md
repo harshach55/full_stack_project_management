@@ -67,7 +67,8 @@ If you change `PM_LOCAL_DB_PASSWORD` after the first start, recreate the databas
 | `test` | Run the test suite against the local test database |
 | `test:coverage` | Tests with a coverage report |
 | `db:migrate:dev` | Create and apply a migration (local database only) |
-| `db:migrate:deploy` / `db:migrate:status` | Apply / inspect migrations |
+| `db:migrate:deploy` / `db:migrate:status` | Apply / inspect migrations (local database) |
+| `db:prod:check` / `db:prod:status` / `db:prod:deploy` | Production database: connection check, status, apply migrations (see Migrations) |
 
 ## Tests
 
@@ -97,4 +98,10 @@ pnpm --filter @pm/api test
 
 - New migrations are created only against the local database (`db:migrate:dev`).
 - The first migration contains hand-written `CHECK` constraints that Prisma cannot express; keep them when editing migrations.
-- Production migrations are applied manually with `DIRECT_URL` and checked with `db:migrate:status` before and after; they are never run by the build or at server start (ADR-0011).
+- Production migrations are applied manually from a developer machine and checked before and after; they are never run by the build or at server start (ADR-0011). Use the production scripts, which read only `apps/api/.env.production` (git-ignored, from [`.env.production.example`](.env.production.example)), refuse local targets and enforce verified TLS:
+  ```bash
+  pnpm --filter @pm/api db:prod:check    # connect like the running API, list tables
+  pnpm --filter @pm/api db:prod:status
+  pnpm --filter @pm/api db:prod:deploy
+  ```
+  Full procedure: [docs/deployment.md](../../docs/deployment.md), section 4.

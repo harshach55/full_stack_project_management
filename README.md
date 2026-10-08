@@ -6,7 +6,8 @@ A project and task management application with a responsive web app and an Andro
 
 - Backend API (`apps/api`) and shared validation package (`packages/shared`): implemented and tested. See [apps/api/README.md](apps/api/README.md).
 - Web app (`apps/web`): implemented and tested. See [apps/web/README.md](apps/web/README.md).
-- Android app (`apps/mobile`): implemented and validated locally (no release build yet). See [apps/mobile/README.md](apps/mobile/README.md).
+- Android app (`apps/mobile`): implemented and validated on a physical device against the production API (no release build yet). See [apps/mobile/README.md](apps/mobile/README.md).
+- Deployment: web on Vercel (https://pm-system-harsha.vercel.app), API on Render (https://pm-api-lb5m.onrender.com, docs at `/api/docs`), database on Supabase. See [docs/deployment.md](docs/deployment.md).
 
 ## Planned stack
 
@@ -23,5 +24,6 @@ A project and task management application with a responsive web app and an Andro
 - [Scope and decisions](docs/scope-and-decisions.md)
 - [Traceability matrix](docs/traceability-matrix.md)
 - [Screens and user flows](docs/user-flows.md)
+- [Deployment](docs/deployment.md)
 
-Setup, environment and deployment instructions will be added as each part of the system is built.
+Setup and environment instructions are in each app's README; production setup is in [docs/deployment.md](docs/deployment.md).
