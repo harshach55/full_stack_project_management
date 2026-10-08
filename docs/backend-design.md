@@ -306,11 +306,25 @@ Phase 5 must cover at least:
 **Documentation**
 - every route mounted in the app appears in `/api/docs.json`
 
-## 15. Open implementation checks (not decisions)
+## 15. Implementation checks
 
-These are verified during Phase 5 and do not change the contract:
+Results of the Phase 5 checks (none changed the contract):
 
-- Exact Prisma 6 version with the engine-free client and `@prisma/adapter-pg`, and behavior with Supabase's transaction-mode pooler (ADR-0007, pending validation).
-- Node 24 compatibility with the pinned packages (ADR-0001, pending validation).
-- That the chosen relation filters work inside `updateMany`/`deleteMany` on the pinned Prisma version (section 7).
-- That the React Native HTTP client on Android sends no `Origin` header, which the mobile response mode relies on (checked at the start of Phase 7).
+- Prisma 6.19.3 with the engine-free client and `@prisma/adapter-pg` works on Node 24.11.1, including behind a transaction-mode pooler (local PgBouncer). The live Supabase connection and its TLS settings are checked in Phase 10 (ADR-0007).
+- Node 24 compatibility with the backend packages is confirmed (ADR-0001); Next.js and Expo follow in Phases 6 and 7.
+- Ownership-scoped writes work with relation filters (section 16).
+- Still open: that the React Native HTTP client on Android sends no `Origin` header, which the mobile response mode relies on (checked at the start of Phase 7).
+
+## 16. Implementation notes (Phase 5)
+
+Details where the implementation refines this design without changing the API contract:
+
+- **Parsed input location.** Express 5 exposes `req.query` as a read-only getter, so the `validate` middleware stores parsed values in `req.valid.body`, `req.valid.query` and `req.valid.params` instead of replacing the originals. Controllers read only `req.valid`.
+- **Ownership-scoped writes.** Instead of `updateMany`/`deleteMany` plus a follow-up read, services call Prisma's `update`/`delete` with the ownership condition in the `where` (`{ id, ownerId }` for projects, `{ id, project: { ownerId } }` for tasks). Prisma reports "no matching row" as error P2025, which becomes 404. This keeps ownership in the write itself and returns the updated row in one call.
+- **Search escaping.** Prisma's `contains` does not escape `%` and `_`, so the API escapes them (and `\`) before querying (`lib/search.ts`); search terms match literally.
+- **Task creation race.** If a project is deleted between the ownership check and the task insert, the foreign key error is mapped to 404 `NOT_FOUND`.
+- **Revoked-token cleanup.** Not implemented yet (deferred by the Phase 5 instructions). Expired rows are harmless; the cleanup statement is in database-design.md section 14.
+- **OpenAPI components.** Built with Zod's own `.meta({ id })` on the shared schemas, so the shared package contains no documentation-specific code.
+- **Rate-limit headers.** Standard `RateLimit` headers (IETF draft 7) plus `Retry-After` on 429.
+- **Origin `null`.** Treated like any origin that is not in the allowlist (403).
+- **Health logging.** Health check requests are logged at `debug`.

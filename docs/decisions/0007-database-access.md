@@ -1,7 +1,7 @@
 # ADR-0007: Database access with Prisma 6 and Supabase PostgreSQL
 
 - Status: accepted, with pending validation
-- Pending validation: exact Prisma 6 version supporting the engine-free client with `@prisma/adapter-pg`, and the adapter's behavior with Supabase's transaction-mode pooler (Phase 5).
+- Pending validation: connection to the live Supabase pooler, including its TLS settings (Phase 10). Validated in Phase 5: Prisma 6.19.3 with the engine-free client (`engineType = "client"`) and `@prisma/adapter-pg` 6.19.3; the full API test suite passes through a local PgBouncer in transaction mode with migrations over the direct connection; ownership-scoped update/delete with relation filters works; `prisma generate` needs no database variables.
 - Date: 2026-10-08
 
 ## Context

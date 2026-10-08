@@ -388,7 +388,7 @@ Indexes and unique constraints:
 Not expressible in the Prisma schema, added as SQL in the migration:
 - `users_email_check`, `users_full_name_check`, `projects_name_check`, `tasks_name_check`, `projects_dates_check`
 
-The first migration is created with Prisma's create-only option, the `CHECK` constraints are appended to its SQL, and the result is reviewed before it is applied. Phase 5 confirms that later Prisma migrations leave these constraints untouched.
+The first migration is created with Prisma's create-only option, the `CHECK` constraints are appended to its SQL, and the result is reviewed before it is applied. Phase 5 confirmed that Prisma leaves these constraints untouched: generating a new migration after applying the first one produced an empty migration.
 
 ## 18. Migration strategy
 

@@ -1,7 +1,7 @@
 # ADR-0001: Monorepo with pnpm workspaces
 
 - Status: accepted, with pending validation
-- Pending validation: Node 24 LTS compatibility with the pinned Prisma, Next.js, Expo and tooling versions (Phase 5 to 7 scaffolds).
+- Pending validation: Node 24 LTS compatibility with the pinned Next.js and Expo versions (Phases 6 and 7). Backend part validated in Phase 5: Node 24.11.1 with Prisma 6.19.3, Express 5.2.1, TypeScript 5.9.3, Zod 4.6.5, Vitest 5.0.3 and pnpm 10.34.6 (install, typecheck, build, tests and the compiled server).
 - Date: 2026-10-08
 
 ## Context
