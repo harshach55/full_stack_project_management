@@ -2,7 +2,7 @@
 
 Maps each functional requirement to its endpoint, web screen, mobile screen and planned tests. Test names are placeholders until the test plan in Phase 4. This table is also used as the checklist for the Phase 9 audit and final submission.
 
-Status: `planned` until implemented, then `done` with links to the evidence: API test files, client test files, or the manual and deployed checks recorded in [testing.md](testing.md), section 6. All rows were verified in the Phase 9 audit (2026-10-09).
+Status: `planned` until implemented, then `done` with links to the evidence: API test files, client test files, or the manual and deployed checks recorded in [testing.md](testing.md), section 6. All rows were verified in the Phase 9 audit (2026-10-09); MOB-01, MOB-12 and SUB-05 were added and verified with the Phase 10 release build (2026-10-09).
 
 | Req | Endpoint | Web | Mobile | Planned tests | Status |
 |---|---|---|---|---|---|
@@ -38,6 +38,8 @@ Status: `planned` until implemented, then `done` with links to the evidence: API
 | SRCH-04 | `GET /api/tasks?status=&priority=` | `/tasks`, `/projects/[id]` | Tasks | combined filters; invalid priority returns 400 | done: [tasks](../apps/api/tests/tasks.test.ts) |
 | SRCH-05 | project and task lists | - | - | other user's matching names never returned | done: [projects](../apps/api/tests/projects.test.ts), [tasks](../apps/api/tests/tasks.test.ts) |
 | WEB-02 | (all pages) | all pages | - | no horizontal scrolling and usable controls at phone, tablet and desktop widths | done: [manual](testing.md#6-manual-and-deployed-verification) |
+| MOB-01 | - | - | APK | release APK installs and runs on a physical Android phone | done: [manual](testing.md#6-manual-and-deployed-verification), [release build](deployment.md#release-build-eas) |
+| MOB-12 | (all endpoints) | - | all screens | release APK uses the HTTPS production API set at build time | done: [manual](testing.md#6-manual-and-deployed-verification), [release build](deployment.md#release-build-eas) |
 | MOB-08 | (all lists) | - | all list screens | manual check | done: [manual](testing.md#6-manual-and-deployed-verification) |
 | MOB-10 | (auth middleware) | - | Login | manual check with an expired/revoked token | done: [mobile session](../apps/mobile/tests/session.test.ts), [manual](testing.md#6-manual-and-deployed-verification) |
 | MOB-11 | - | - | all screens | manual check in airplane mode | done: [manual](testing.md#6-manual-and-deployed-verification) |
@@ -47,6 +49,7 @@ Status: `planned` until implemented, then `done` with links to the evidence: API
 | SEC-06 | `POST /api/auth/login`, `/register` | - | - | repeated attempts return 429 | done: [security](../apps/api/tests/security.test.ts) |
 | SEC-07 | state-changing routes | - | - | cookie request with foreign Origin rejected | done: [security](../apps/api/tests/security.test.ts) |
 | SEC-09 | (logger) | - | - | log output contains no token, cookie or password values | done: [security](../apps/api/tests/security.test.ts), [unit](../apps/api/tests/unit.test.ts) |
+| SUB-05 | - | - | APK | APK link and checksum recorded | done: [release build](deployment.md#release-build-eas) |
 
 Non-functional requirements (WEB, API, DB, DOC, SUB) are verified by review against [requirements.md](requirements.md) during Phase 9; the results are in [testing.md](testing.md), section 7. Security requirements are reviewed in [security-audit.md](security-audit.md).
 

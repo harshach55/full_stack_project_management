@@ -1,9 +1,9 @@
 # ADR-0011: Deployment architecture
 
-- Status: accepted, with pending validation
+- Status: accepted
 - Validation (Phase 8, 2026-10-08): Supabase project in Singapore (`ap-southeast-1` pooler) with the Data API disabled; the first migration applied manually with `prisma migrate deploy` and verified before the API was deployed; Render web service in Singapore on Node 24.11.1 (from `.nvmrc`, confirmed in the build log), auto-deploy off, health check `/api/health`; Vercel project with root `apps/web` on Node 24.x, `API_ORIGIN` set for Production only. The rewrite runs at Vercel's edge; the function region was changed from the default `iad1` to Singapore (`sin1`), so server-rendered pages also run next to the API (observed in the `X-Vercel-Id` header after redeploying). Settings and results: [deployment.md](../deployment.md).
-- Pending validation: the EAS build profile and the Node version used for EAS builds (release build phase).
-- Date: 2026-10-08
+- Validation (Phase 10, 2026-10-09): EAS project `@harsha_chodavarapu/project-manager`; `preview` profile in `apps/mobile/eas.json` with `android.buildType: apk`, internal distribution, Node 24.11.1, pnpm 10.34.6 and `EXPO_PUBLIC_API_URL=https://pm-api-lb5m.onrender.com`; package `com.harshach55.projectmanager`. Build `8ea20e9b-2d0d-4973-a703-b42e124cc25c` finished; its log confirms Node 24.11.1, pnpm 10.34.6, a frozen-lockfile install and the shared package built by the `eas-build-post-install` hook. The APK is signed, contains the production API address and no development address, and passed the device checks on a physical Android phone. Details: [deployment.md](../deployment.md), section 7.
+- Date: 2026-10-08 (accepted 2026-10-09)
 
 ## Context
 
@@ -42,6 +42,8 @@ Schema changes must reach the production database in a controlled way: each migr
 - Build profile that produces an APK (EAS builds an Android App Bundle by default, which cannot be installed directly).
 - `EXPO_PUBLIC_API_URL` set to the HTTPS Render URL in that profile.
 - APK distributed through the EAS build link or a GitHub release.
+- Builds run from `apps/mobile`, so EAS uses that app's configuration. The compiled shared package is not in git, so an `eas-build-post-install` script builds it on the build server.
+- The signing keystore is generated and stored by EAS (remote credentials), never in the repository.
 
 **Node version**
 - One Node version (Node 24 LTS) locally, on Render, on Vercel and for EAS builds. Its compatibility with the pinned Prisma 6, Next.js, Expo SDK and tooling versions is verified when each app is scaffolded; if a pinned version does not support it, the whole project moves to a supported LTS version together.

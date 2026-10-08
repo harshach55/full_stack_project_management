@@ -80,11 +80,26 @@ pnpm --filter @pm/mobile start --clear
 | `typecheck` | Type-check app, sources and tests |
 | `test` | Unit tests (Vitest, Node) for the API client, session rules, endpoints and request bodies |
 | `export:android` | Bundle for Android (Metro + Hermes) into `.expo-export/` as a build check |
+| `eas-build-post-install` | Run by EAS on the build server only: builds `packages/shared`, whose compiled output is not in git |
 
 `expo-doctor` (`pnpm dlx expo-doctor`) reports React 19.3.0 as a duplicate: that copy belongs to the web app in the same workspace. The Android bundle contains only React 19.2.3 (checked in Phase 7), because pnpm gives each app its own dependencies.
+
+## Release build (APK)
+
+The installable APK is built by EAS Build with the `preview` profile in [`eas.json`](eas.json): APK output, internal distribution, Node 24.11.1, pnpm 10.34.6 and `EXPO_PUBLIC_API_URL=https://pm-api-lb5m.onrender.com`. The `.env.local` file is not used for it. Package name: `com.harshach55.projectmanager`.
+
+Always run the build from this directory, never from the repository root:
+
+```bash
+cd apps/mobile
+npx eas-cli@24.12.0 login
+npx eas-cli@24.12.0 build -p android --profile preview
+```
+
+EAS signs the APK with a keystore it stores itself; no signing files are kept in the repository. When the build finishes, EAS prints the APK link; open it on the phone to install. The current release, its checksum and its verification are in [docs/deployment.md](../../docs/deployment.md), section 7.
 
 ## Notes
 
 - Shared validation, enums and types come from `packages/shared`; Metro uses the compiled package through Expo's default, workspace-aware configuration (ADR-0008).
 - The mobile app uses TypeScript 6.0.3 because Expo SDK 57 requires it; the other packages use 5.9.3.
-- Release builds (EAS, APK) are configured in a later phase. HTTP API addresses work in development; a release build will use the HTTPS deployment URL.
+- HTTP API addresses work in development; the release APK uses the HTTPS deployment URL from the EAS profile.
