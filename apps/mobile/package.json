@@ -9,7 +9,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "doctor": "expo-doctor",
-    "export:android": "expo export --platform android --output-dir .expo-export"
+    "export:android": "expo export --platform android --output-dir .expo-export",
+    "eas-build-post-install": "pnpm --filter @pm/shared build"
   },
   "dependencies": {
     "@expo/metro-runtime": "57.0.16",

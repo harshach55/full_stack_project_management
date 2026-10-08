@@ -10,7 +10,7 @@
       "android"
     ],
     "android": {
-      "package": "com.example.projectmanager"
+      "package": "com.harshach55.projectmanager"
     },
     "plugins": [
       "expo-router",
@@ -19,6 +19,13 @@
     ],
     "experiments": {
       "typedRoutes": false
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "32b2ac5d-a0a0-4024-a2f6-49cddd24ff0b"
+      }
+    },
+    "owner": "harsha_chodavarapu"
   }
 }

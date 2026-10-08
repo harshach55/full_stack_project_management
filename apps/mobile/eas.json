@@ -1,0 +1,19 @@
+{
+  "cli": {
+    "version": ">= 24.12.0",
+    "appVersionSource": "local"
+  },
+  "build": {
+    "preview": {
+      "distribution": "internal",
+      "node": "24.11.1",
+      "pnpm": "10.34.6",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://pm-api-lb5m.onrender.com"
+      }
+    }
+  }
+}
