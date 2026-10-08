@@ -1,0 +1,101 @@
+// Database schema. Design and rationale: docs/database-design.md and ADR-0013.
+// CHECK constraints that Prisma cannot express are added by hand in the
+// migration SQL (see the first migration).
+
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "client"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // Used by the Prisma CLI. At runtime the API connects through the pg
+  // driver adapter with DATABASE_URL from its own configuration.
+  url       = env("DATABASE_URL")
+  // Session/direct connection for migrations, set only on the machine that
+  // runs them (ADR-0011).
+  directUrl = env("DIRECT_URL")
+}
+
+enum ProjectStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+
+  @@map("project_status")
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+
+  @@map("task_status")
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+
+  @@map("task_priority")
+}
+
+model User {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  fullName     String   @map("full_name") @db.VarChar(100)
+  email        String   @unique(map: "users_email_key") @db.VarChar(254)
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  projects      Project[]
+  revokedTokens RevokedToken[]
+
+  @@map("users")
+}
+
+model Project {
+  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ownerId     String        @map("owner_id") @db.Uuid
+  name        String        @db.VarChar(120)
+  description String?       @db.VarChar(2000)
+  status      ProjectStatus @default(NOT_STARTED)
+  startDate   DateTime?     @map("start_date") @db.Date
+  endDate     DateTime?     @map("end_date") @db.Date
+  createdAt   DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  owner User   @relation(fields: [ownerId], references: [id], onDelete: Restrict, map: "projects_owner_id_fkey")
+  tasks Task[]
+
+  @@index([ownerId, createdAt], map: "projects_owner_id_created_at_idx")
+  @@map("projects")
+}
+
+model Task {
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  projectId   String       @map("project_id") @db.Uuid
+  name        String       @db.VarChar(120)
+  description String?      @db.VarChar(2000)
+  priority    TaskPriority @default(MEDIUM)
+  status      TaskStatus   @default(PENDING)
+  dueDate     DateTime?    @map("due_date") @db.Date
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade, map: "tasks_project_id_fkey")
+
+  @@index([projectId, createdAt], map: "tasks_project_id_created_at_idx")
+  @@map("tasks")
+}
+
+model RevokedToken {
+  jti       String   @id @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  expiresAt DateTime @map("expires_at") @db.Timestamptz(3)
+  revokedAt DateTime @default(now()) @map("revoked_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, map: "revoked_tokens_user_id_fkey")
+
+  @@map("revoked_tokens")
+}
