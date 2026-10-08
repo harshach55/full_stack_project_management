@@ -2,52 +2,53 @@
 
 Maps each functional requirement to its endpoint, web screen, mobile screen and planned tests. Test names are placeholders until the test plan in Phase 4. This table is also used as the checklist for the Phase 9 audit and final submission.
 
-Status: `planned` until implemented, then `done` with a link to the test file.
+Status: `planned` until implemented, then `done` with links to the evidence: API test files, client test files, or the manual and deployed checks recorded in [testing.md](testing.md), section 6. All rows were verified in the Phase 9 audit (2026-10-09).
 
 | Req | Endpoint | Web | Mobile | Planned tests | Status |
 |---|---|---|---|---|---|
-| AUTH-01 | `POST /api/auth/register` | `/register` | Register | register success; missing fields; invalid email; short password | planned |
-| AUTH-02 | `POST /api/auth/register` | `/register` | Register | duplicate email; duplicate email in different case | planned |
-| AUTH-03 | (all auth) | - | - | stored password is a bcrypt hash; responses never include password fields | planned |
-| AUTH-04 | `POST /api/auth/login` | `/login` | Login | login success; wrong password; unknown email returns same message | planned |
-| AUTH-05 | `POST /api/auth/logout` | header logout | header logout | token rejected after logout; second session still valid | planned |
-| AUTH-06 | `GET /api/auth/me` | layout | app start | returns user; 401 without token | planned |
-| AUTH-07 | (auth middleware) | redirect to `/login` | Login with message | expired token returns 401 with expiry code | planned |
-| AUTH-08 | (all auth) | `/login` | Login | same credentials accepted via cookie and bearer flows | planned |
-| AUTH-09 | `POST /api/auth/login` | - | - | cookie flags httpOnly, Secure, SameSite=Lax; no token in web response body | planned |
-| AUTH-10 | `POST /api/auth/login` | - | SecureStore | bearer flow returns token; manual check of storage | planned |
-| PROJ-01 | `POST /api/projects` | `/projects/new` | - | create success; owner taken from session; validation errors | planned |
-| PROJ-02 | `GET /api/projects` | `/projects` | Projects | lists only own projects; newest first | planned |
-| PROJ-03 | `GET /api/projects/{id}` | `/projects/[id]` | Project detail | own project; other user's project returns 404; malformed id returns 400 | planned |
-| PROJ-04 | `PUT /api/projects/{id}` | `/projects/[id]/edit` | - | update success; other user's project returns 404; endDate before startDate returns 400 | planned |
-| PROJ-05 | `DELETE /api/projects/{id}` | `/projects/[id]` | - | delete success; tasks removed; other user's project returns 404 | planned |
-| PROJ-06 | (project schema) | project forms | - | invalid status; invalid date; empty name | planned |
-| TASK-01 | `POST /api/tasks` | `/tasks/new` | Task form | create in own project; other user's project returns 404 | planned |
-| TASK-02 | `GET /api/tasks` | `/tasks`, `/projects/[id]` | Tasks, Project detail | all own tasks; empty array when none; filter by own projectId; other user's projectId returns 404; unknown projectId returns 404 | planned |
-| TASK-03 | `GET /api/tasks/{id}` | `/tasks/[id]/edit` | Task detail | own task; other user's task returns 404 | planned |
-| TASK-04 | `PUT /api/tasks/{id}` | `/tasks/[id]/edit` | Task form | update success; partial body returns 400; projectId change rejected; other user's task returns 404 | planned |
-| TASK-05 | `DELETE /api/tasks/{id}` | task actions | Task actions | delete success; other user's task returns 404 | planned |
-| TASK-06 | `PUT /api/tasks/{id}` | task actions | Task actions | status set to COMPLETED; dashboard count updates | planned |
-| TASK-07 | `PUT /api/tasks/{id}` | task actions | Task actions | status/priority change; invalid enum returns 400 | planned |
-| TASK-08 | (task schema) | task form | Task form | empty name; invalid due date; invalid priority | planned |
-| DASH-01 | `GET /api/dashboard` | `/dashboard` | Dashboard | counts match seeded data; pending counts only PENDING | planned |
-| DASH-02 | `GET /api/dashboard` | `/dashboard` | Dashboard | two users with data see only their own counts | planned |
-| SRCH-01 | `GET /api/projects?search=` | `/projects` | - | case-insensitive partial match | planned |
-| SRCH-02 | `GET /api/projects?status=` | `/projects` | - | status filter; invalid status returns 400 | planned |
-| SRCH-03 | `GET /api/tasks?search=` | `/tasks`, `/projects/[id]` | Tasks | case-insensitive partial match | planned |
-| SRCH-04 | `GET /api/tasks?status=&priority=` | `/tasks`, `/projects/[id]` | Tasks | combined filters; invalid priority returns 400 | planned |
-| SRCH-05 | project and task lists | - | - | other user's matching names never returned | planned |
-| MOB-08 | (all lists) | - | all list screens | manual check | planned |
-| MOB-10 | (auth middleware) | - | Login | manual check with an expired/revoked token | planned |
-| MOB-11 | - | - | all screens | manual check in airplane mode | planned |
-| SYNC-02 | (tasks) | `/tasks` | Tasks | manual check following flow F6 | planned |
-| SEC-01 | all protected routes | - | - | each protected route returns 401 without a session | planned |
-| SEC-04 | create/update routes | - | - | ownerId, id and createdAt in request bodies have no effect or are rejected | planned |
-| SEC-06 | `POST /api/auth/login`, `/register` | - | - | repeated attempts return 429 | planned |
-| SEC-07 | state-changing routes | - | - | cookie request with foreign Origin rejected | planned |
-| SEC-09 | (logger) | - | - | log output contains no token, cookie or password values | planned |
+| AUTH-01 | `POST /api/auth/register` | `/register` | Register | register success; missing fields; invalid email; short password | done: [auth](../apps/api/tests/auth.test.ts) |
+| AUTH-02 | `POST /api/auth/register` | `/register` | Register | duplicate email; duplicate email in different case | done: [auth](../apps/api/tests/auth.test.ts) |
+| AUTH-03 | (all auth) | - | - | stored password is a bcrypt hash; responses never include password fields | done: [auth](../apps/api/tests/auth.test.ts), [security](../apps/api/tests/security.test.ts) |
+| AUTH-04 | `POST /api/auth/login` | `/login` | Login | login success; wrong password; unknown email returns same message | done: [auth](../apps/api/tests/auth.test.ts) |
+| AUTH-05 | `POST /api/auth/logout` | header logout | header logout | token rejected after logout; second session still valid | done: [auth](../apps/api/tests/auth.test.ts) |
+| AUTH-06 | `GET /api/auth/me` | layout | app start | returns user; 401 without token | done: [auth](../apps/api/tests/auth.test.ts) |
+| AUTH-07 | (auth middleware) | redirect to `/login` | Login with message | expired token returns 401 with expiry code | done: [auth](../apps/api/tests/auth.test.ts) |
+| AUTH-08 | (all auth) | `/login` | Login | same credentials accepted via cookie and bearer flows | done: [auth](../apps/api/tests/auth.test.ts), [manual](testing.md#6-manual-and-deployed-verification) |
+| AUTH-09 | `POST /api/auth/login` | - | - | cookie flags httpOnly, Secure, SameSite=Lax; no token in web response body | done: [auth](../apps/api/tests/auth.test.ts), [manual](testing.md#6-manual-and-deployed-verification) |
+| AUTH-10 | `POST /api/auth/login` | - | SecureStore | bearer flow returns token; manual check of storage | done: [auth](../apps/api/tests/auth.test.ts), [mobile session](../apps/mobile/tests/session.test.ts), [manual](testing.md#6-manual-and-deployed-verification) |
+| PROJ-01 | `POST /api/projects` | `/projects/new` | - | create success; owner taken from session; validation errors | done: [projects](../apps/api/tests/projects.test.ts) |
+| PROJ-02 | `GET /api/projects` | `/projects` | Projects | lists only own projects; newest first | done: [projects](../apps/api/tests/projects.test.ts) |
+| PROJ-03 | `GET /api/projects/{id}` | `/projects/[id]` | Project detail | own project; other user's project returns 404; malformed id returns 400 | done: [projects](../apps/api/tests/projects.test.ts) |
+| PROJ-04 | `PUT /api/projects/{id}` | `/projects/[id]/edit` | - | update success; other user's project returns 404; endDate before startDate returns 400 | done: [projects](../apps/api/tests/projects.test.ts) |
+| PROJ-05 | `DELETE /api/projects/{id}` | `/projects/[id]` | - | delete success; tasks removed; other user's project returns 404 | done: [projects](../apps/api/tests/projects.test.ts) |
+| PROJ-06 | (project schema) | project forms | - | invalid status; invalid date; empty name | done: [projects](../apps/api/tests/projects.test.ts) |
+| TASK-01 | `POST /api/tasks` | `/tasks/new` | Task form | create in own project; other user's project returns 404 | done: [tasks](../apps/api/tests/tasks.test.ts) |
+| TASK-02 | `GET /api/tasks` | `/tasks`, `/projects/[id]` | Tasks, Project detail | all own tasks; empty array when none; filter by own projectId; other user's projectId returns 404; unknown projectId returns 404 | done: [tasks](../apps/api/tests/tasks.test.ts) |
+| TASK-03 | `GET /api/tasks/{id}` | `/tasks/[id]/edit` | Task detail | own task; other user's task returns 404 | done: [tasks](../apps/api/tests/tasks.test.ts) |
+| TASK-04 | `PUT /api/tasks/{id}` | `/tasks/[id]/edit` | Task form | update success; partial body returns 400; projectId change rejected; other user's task returns 404 | done: [tasks](../apps/api/tests/tasks.test.ts) |
+| TASK-05 | `DELETE /api/tasks/{id}` | task actions | Task actions | delete success; other user's task returns 404 | done: [tasks](../apps/api/tests/tasks.test.ts) |
+| TASK-06 | `PUT /api/tasks/{id}` | task actions | Task actions | status set to COMPLETED; dashboard count updates | done: [tasks](../apps/api/tests/tasks.test.ts), [dashboard](../apps/api/tests/dashboard.test.ts) |
+| TASK-07 | `PUT /api/tasks/{id}` | task actions | Task actions | status/priority change; invalid enum returns 400 | done: [tasks](../apps/api/tests/tasks.test.ts) |
+| TASK-08 | (task schema) | task form | Task form | empty name; invalid due date; invalid priority | done: [tasks](../apps/api/tests/tasks.test.ts) |
+| DASH-01 | `GET /api/dashboard` | `/dashboard` | Dashboard | counts match seeded data; pending counts only PENDING | done: [dashboard](../apps/api/tests/dashboard.test.ts) |
+| DASH-02 | `GET /api/dashboard` | `/dashboard` | Dashboard | two users with data see only their own counts | done: [dashboard](../apps/api/tests/dashboard.test.ts) |
+| SRCH-01 | `GET /api/projects?search=` | `/projects` | - | case-insensitive partial match | done: [projects](../apps/api/tests/projects.test.ts) |
+| SRCH-02 | `GET /api/projects?status=` | `/projects` | - | status filter; invalid status returns 400 | done: [projects](../apps/api/tests/projects.test.ts) |
+| SRCH-03 | `GET /api/tasks?search=` | `/tasks`, `/projects/[id]` | Tasks | case-insensitive partial match | done: [tasks](../apps/api/tests/tasks.test.ts) |
+| SRCH-04 | `GET /api/tasks?status=&priority=` | `/tasks`, `/projects/[id]` | Tasks | combined filters; invalid priority returns 400 | done: [tasks](../apps/api/tests/tasks.test.ts) |
+| SRCH-05 | project and task lists | - | - | other user's matching names never returned | done: [projects](../apps/api/tests/projects.test.ts), [tasks](../apps/api/tests/tasks.test.ts) |
+| WEB-02 | (all pages) | all pages | - | no horizontal scrolling and usable controls at phone, tablet and desktop widths | done: [manual](testing.md#6-manual-and-deployed-verification) |
+| MOB-08 | (all lists) | - | all list screens | manual check | done: [manual](testing.md#6-manual-and-deployed-verification) |
+| MOB-10 | (auth middleware) | - | Login | manual check with an expired/revoked token | done: [mobile session](../apps/mobile/tests/session.test.ts), [manual](testing.md#6-manual-and-deployed-verification) |
+| MOB-11 | - | - | all screens | manual check in airplane mode | done: [manual](testing.md#6-manual-and-deployed-verification) |
+| SYNC-02 | (tasks) | `/tasks` | Tasks | manual check following flow F6 | done: [manual](testing.md#6-manual-and-deployed-verification) |
+| SEC-01 | all protected routes | - | - | each protected route returns 401 without a session | done: [security](../apps/api/tests/security.test.ts) |
+| SEC-04 | create/update routes | - | - | ownerId, id and createdAt in request bodies have no effect or are rejected | done: [projects](../apps/api/tests/projects.test.ts), [tasks](../apps/api/tests/tasks.test.ts) |
+| SEC-06 | `POST /api/auth/login`, `/register` | - | - | repeated attempts return 429 | done: [security](../apps/api/tests/security.test.ts) |
+| SEC-07 | state-changing routes | - | - | cookie request with foreign Origin rejected | done: [security](../apps/api/tests/security.test.ts) |
+| SEC-09 | (logger) | - | - | log output contains no token, cookie or password values | done: [security](../apps/api/tests/security.test.ts), [unit](../apps/api/tests/unit.test.ts) |
 
-Non-functional requirements (WEB, API, DB, DOC, SUB) are verified by review against [requirements.md](requirements.md) during Phase 9.
+Non-functional requirements (WEB, API, DB, DOC, SUB) are verified by review against [requirements.md](requirements.md) during Phase 9; the results are in [testing.md](testing.md), section 7. Security requirements are reviewed in [security-audit.md](security-audit.md).
 
 ## API contract mapping
 
