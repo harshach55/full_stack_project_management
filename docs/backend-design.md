@@ -313,7 +313,7 @@ Results of the Phase 5 checks (none changed the contract):
 - Prisma 6.19.3 with the engine-free client and `@prisma/adapter-pg` works on Node 24.11.1, including behind a transaction-mode pooler (local PgBouncer). The live Supabase connection and its TLS settings are checked in Phase 10 (ADR-0007).
 - Node 24 compatibility with the backend packages is confirmed (ADR-0001); Next.js and Expo follow in Phases 6 and 7.
 - Ownership-scoped writes work with relation filters (section 16).
-- Still open: that the React Native HTTP client on Android sends no `Origin` header, which the mobile response mode relies on (checked at the start of Phase 7).
+- Validated in Phase 7 on a physical Android device (Expo Go): the React Native HTTP client sends no `Origin` header, which the mobile response mode relies on. All 160 captured app requests carried `X-Client-Type: mobile` and no `Origin` or cookie; protected routes carried the Bearer token.
 
 ## 16. Implementation notes (Phase 5)
 
