@@ -51,5 +51,5 @@ Each measure maps to a requirement and to a test in the traceability matrix. Key
 ## Consequences
 
 - Phase 4 adds the rate-limit, origin and token error codes to the contract.
-- Phase 8 verifies `Origin` and client IP forwarding through the deployed rewrite.
+- Phase 8 verified that the deployed rewrite forwards `Origin` unchanged (ADR-0004). Client IP forwarding in `X-Forwarded-For` was not observable from outside; the rate limits do not depend on it.
 - Phase 9 audits every row of this table against the code and tests.

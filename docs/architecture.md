@@ -422,7 +422,7 @@ Full list in [ADR-0010](decisions/0010-security-architecture.md). Summary:
 - Web requests arrive through Vercel, so `req.ip` is a Vercel address shared by many users. A strict per-IP limit would throttle all web users together.
 - Therefore login is limited **per IP + normalized email** (strict: protects each account from password guessing), plus a looser **per-IP** limit (protects against broad abuse without blocking normal web traffic). Register uses a per-IP limit.
 - The in-memory store of `express-rate-limit` is used (single instance); limits reset on restart, which is acceptable for this deployment.
-- Whether Vercel passes the original client IP in `X-Forwarded-For` is verified in Phase 8; the design above does not depend on it.
+- Whether Vercel passes the original client IP in `X-Forwarded-For` could not be observed from outside in Phase 8 (it would require logging it); the design above does not depend on it.
 
 ## 16. Web architecture
 
@@ -538,7 +538,7 @@ Used for: Render's health check, manual checks, waking the free-tier service bef
 
 ## 21. Deployment architecture
 
-See [ADR-0011](decisions/0011-deployment-architecture.md).
+See [ADR-0011](decisions/0011-deployment-architecture.md). Platform settings, environment values and verification results: [deployment.md](deployment.md).
 
 ```mermaid
 flowchart LR
@@ -570,9 +570,9 @@ flowchart LR
 | Target | Approach |
 |---|---|
 | Region | Singapore for Render and Supabase if available on the selected plans; verified when the services are created. |
-| Supabase | One project. Runtime uses the pooled connection string (transaction mode); migrations use the session/direct string. Data API disabled. |
+| Supabase | One project. Runtime uses the pooled connection string (transaction mode); migrations use the session/direct string. Data API disabled. TLS is verified against the Supabase root CA, committed as `apps/api/certs/prod-ca-2021.crt` (ADR-0007). |
 | Migrations | Controlled and manual: `prisma migrate deploy` run from a developer machine with `DIRECT_URL` (git-ignored local file), checked with `prisma migrate status` before and after. Never run by the Render build or at server start. |
-| Render | Web service from the monorepo. Build: install with pnpm (frozen lockfile), build `shared`, generate Prisma client, build `api` (no migrations). Start: `node dist/server.js`. Health check path `/api/health`. Auto-deploy off; deployed manually after the migration is verified. |
+| Render | Web service from the monorepo. Build: install with pnpm (frozen lockfile, devDependencies included), build `shared`, generate Prisma client, build `api` (no migrations). Start: `node dist/server.js`. Health check path `/api/health`. Auto-deploy off; deployed manually after the migration is verified. |
 | Vercel | Project root `apps/web`; pnpm workspace install; `shared` built before the web build; `API_ORIGIN` set to the Render URL. |
 | EAS | Build profile producing an APK with `EXPO_PUBLIC_API_URL` set to the Render URL. |
 | Node | One version (Node 24 LTS) locally, on Render, on Vercel and for EAS builds. Compatibility with the pinned Prisma, Next.js, Expo and tooling versions is verified at scaffold time; if it fails, the whole project moves to a supported LTS version together. |
@@ -602,6 +602,7 @@ Variable names are final; values never appear in the repository. `.env.example` 
 | `PORT` | no | Listen port (Render provides it) |
 | `DATABASE_URL` | yes | Pooled connection string used at runtime |
 | `DIRECT_URL` | yes | Session/direct connection string used only by migrations; set on the machine that runs them, not on Render |
+| `NODE_EXTRA_CA_CERTS` | no | Read by Node itself, not by the app: path to the Supabase root CA (`certs/prod-ca-2021.crt`) in production |
 | `JWT_SECRET` | yes | HS256 signing key, at least 32 random bytes |
 | `JWT_EXPIRES_IN` | no | Token lifetime, default `7d` |
 | `CORS_ALLOWED_ORIGINS` | no | Comma-separated origins (web origin, local dev origins); also used by the origin check |
@@ -665,10 +666,10 @@ Security test set (all required):
 
 | # | Risk | Impact | Mitigation | Validated in |
 |---|---|---|---|---|
-| 1 | Cross-site web/API authentication: cookies set by the API domain are third-party for the web app | Web login fails in some browsers | Same-origin `/api` rewrite on Vercel (ADR-0004). Fallback: a Next.js route handler that forwards requests explicitly | Phase 6 locally, Phase 10 deployed |
-| 2 | Proxy headers and client IP: `Origin`, `Set-Cookie` and client IP may change through the Vercel hop | Origin check rejects valid requests, cookie not stored, or rate limits hit all users | Verify headers through the deployed rewrite; rate limits keyed on IP + email (section 15); `trust proxy` set to exactly one hop | Phase 8 and Phase 10 |
+| 1 | Cross-site web/API authentication: cookies set by the API domain are third-party for the web app | Web login fails in some browsers | Same-origin `/api` rewrite on Vercel (ADR-0004). Fallback: a Next.js route handler that forwards requests explicitly | Phase 6 locally, Phase 8 deployed |
+| 2 | Proxy headers and client IP: `Origin`, `Set-Cookie` and client IP may change through the Vercel hop | Origin check rejects valid requests, cookie not stored, or rate limits hit all users | Verify headers through the deployed rewrite; rate limits keyed on IP + email (section 15); `trust proxy` set to exactly one hop | Phase 8 (`Origin` and `Set-Cookie` verified) |
 | 3 | Render free tier sleeps after inactivity; first request can take about a minute | Timeouts or "network error" during review or demo | Health endpoint; "server is starting" message with a longer first-request timeout; warm-up before the demo; README note | Phase 7, Phase 10, Phase 12 |
-| 4 | Supabase connectivity and pooling: direct host is IPv6-only, Render has no outbound IPv6; transaction pooler restricts prepared statements | API cannot connect, or queries fail intermittently | Pooled connection string for runtime, session/direct string only for migrations; verify the pg adapter against the transaction pooler | Phase 5 (first connection), Phase 10 |
+| 4 | Supabase connectivity and pooling: direct host is IPv6-only, Render has no outbound IPv6; transaction pooler restricts prepared statements | API cannot connect, or queries fail intermittently | Pooled connection string for runtime, session/direct string only for migrations; verify the pg adapter against the transaction pooler | Phase 5 (local pooler), Phase 8 (live pooler with verified TLS) |
 | 5 | Prisma version stability: Prisma 7 is current and configured differently | Build errors or mixed configuration | Pin an exact Prisma 6 version that supports the engine-free client with the pg adapter; follow Prisma 6 documentation only | Phase 3 and Phase 5 |
 | 6 | pnpm monorepo with Expo Metro: symlinked workspaces and package resolution | Mobile build cannot resolve `shared` or React | Use Expo's monorepo configuration for the pinned SDK; fall back to `node-linker=hoisted`; one React and one Zod version | Start of Phase 7 (before screens) |
 | 7 | APK build availability: EAS free queue delays, AAB default | Late or wrong artifact | APK build profile; Expo account ready early; first test build well before the deadline | Phase 7 and Phase 10 |

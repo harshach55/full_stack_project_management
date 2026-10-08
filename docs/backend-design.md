@@ -246,6 +246,8 @@ Parsed once in `config/env.ts`:
 
 `DIRECT_URL` is used only by Prisma migration commands on the machine that runs them; the running API never reads it (ADR-0011). In production the config also rejects `COOKIE_SECURE=false`.
 
+In production Render also sets `NODE_EXTRA_CA_CERTS=certs/prod-ca-2021.crt`. Node reads it at startup to trust the Supabase root CA; the app's config does not parse it. `DATABASE_URL` uses `sslmode=verify-full` (ADR-0007, [deployment.md](deployment.md)).
+
 ## 13. Health endpoint
 
 Controller runs `prisma.$queryRaw` with `SELECT 1` under a 2-second timeout and returns the contract's 200 or 503 body. Errors are logged at `warn` without connection details.
@@ -310,7 +312,7 @@ Phase 5 must cover at least:
 
 Results of the Phase 5 checks (none changed the contract):
 
-- Prisma 6.19.3 with the engine-free client and `@prisma/adapter-pg` works on Node 24.11.1, including behind a transaction-mode pooler (local PgBouncer). The live Supabase connection and its TLS settings are checked in Phase 10 (ADR-0007).
+- Prisma 6.19.3 with the engine-free client and `@prisma/adapter-pg` works on Node 24.11.1, including behind a transaction-mode pooler (local PgBouncer). The live Supabase connection and its TLS settings were verified in Phase 8 (ADR-0007).
 - Node 24 compatibility with the backend packages is confirmed (ADR-0001); Next.js and Expo follow in Phases 6 and 7.
 - Ownership-scoped writes work with relation filters (section 16).
 - Validated in Phase 7 on a physical Android device (Expo Go): the React Native HTTP client sends no `Origin` header, which the mobile response mode relies on. All 160 captured app requests carried `X-Client-Type: mobile` and no `Origin` or cookie; protected routes carried the Bearer token.

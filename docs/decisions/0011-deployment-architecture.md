@@ -1,7 +1,8 @@
 # ADR-0011: Deployment architecture
 
 - Status: accepted, with pending validation
-- Pending validation: Singapore availability for Render and Supabase on the selected plans, and Node version compatibility (Phase 10).
+- Validation (Phase 8, 2026-10-08): Supabase project in Singapore (`ap-southeast-1` pooler) with the Data API disabled; the first migration applied manually with `prisma migrate deploy` and verified before the API was deployed; Render web service in Singapore on Node 24.11.1 (from `.nvmrc`, confirmed in the build log), auto-deploy off, health check `/api/health`; Vercel project with root `apps/web` on Node 24.x, `API_ORIGIN` set for Production only. The rewrite runs at Vercel's edge; the function region was changed from the default `iad1` to Singapore (`sin1`), so server-rendered pages also run next to the API (observed in the `X-Vercel-Id` header after redeploying). Settings and results: [deployment.md](../deployment.md).
+- Pending validation: the EAS build profile and the Node version used for EAS builds (release build phase).
 - Date: 2026-10-08
 
 ## Context
@@ -22,16 +23,16 @@ Schema changes must reach the production database in a controlled way: each migr
 
 **Production migrations (controlled, manual)**
 - Migrations are never applied by the Render build or at server start.
-- They are applied from a developer machine with `prisma migrate deploy`, using `DIRECT_URL` from a local, git-ignored environment file. Production credentials are never committed.
+- They are applied from a developer machine with `prisma migrate deploy`, using `DIRECT_URL` from a local, git-ignored environment file (`apps/api/.env.production`, through `pnpm --filter @pm/api db:prod:deploy`). Production credentials are never committed.
 - Before applying: `prisma migrate status` shows which migrations are pending.
 - After applying: `prisma migrate status` reports the schema as up to date, and the expected tables and columns are checked in Supabase.
 - Migrations are written to be compatible with the currently running API version (add first, remove later), because the database is updated before the new API is deployed.
 
 **Render (API)**
-- Web service from the repository root. Build command installs with pnpm (frozen lockfile), builds `shared`, generates the Prisma client and builds `api`. It does not run migrations.
+- Web service from the repository root. Build command installs with pnpm (frozen lockfile, including devDependencies with `--prod=false`), builds `shared`, generates the Prisma client and builds `api`. It does not run migrations.
 - Start command `node dist/server.js` (from `apps/api`). Health check path `/api/health`.
 - Auto-deploy is turned off; deployments are triggered manually after the migration step has been verified.
-- Environment: the API variables from the architecture document with `NODE_ENV=production`, `TRUST_PROXY_HOPS=1`, `COOKIE_SECURE=true`. `DIRECT_URL` is not needed on Render.
+- Environment: the API variables from the architecture document with `NODE_ENV=production`, `TRUST_PROXY_HOPS=1`, `COOKIE_SECURE=true` and `NODE_EXTRA_CA_CERTS` pointing to the Supabase root CA (ADR-0007). `DIRECT_URL` is not needed on Render.
 
 **Vercel (web)**
 - Project root `apps/web`, pnpm workspace install, `shared` built before the web build.
@@ -80,6 +81,6 @@ Manual, verified migrations make each schema change an explicit, reviewable step
 
 ## Consequences
 
-- Phase 10 documents each platform's settings and the deployment sequence step by step in the README.
+- [deployment.md](../deployment.md) documents each platform's settings and the deployment sequence step by step.
 - An Expo account and a first APK test build are prepared early (Phase 7) to avoid queue delays near the deadline.
 - If the rewrite header verification (ADR-0004) fails, the web deployment switches to the route-handler proxy.

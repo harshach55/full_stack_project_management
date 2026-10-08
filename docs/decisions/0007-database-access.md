@@ -1,7 +1,7 @@
 # ADR-0007: Database access with Prisma 6 and Supabase PostgreSQL
 
-- Status: accepted, with pending validation
-- Pending validation: connection to the live Supabase pooler, including its TLS settings (Phase 10). Validated in Phase 5: Prisma 6.19.3 with the engine-free client (`engineType = "client"`) and `@prisma/adapter-pg` 6.19.3; the full API test suite passes through a local PgBouncer in transaction mode with migrations over the direct connection; ownership-scoped update/delete with relation filters works; `prisma generate` needs no database variables.
+- Status: accepted
+- Validation: Phase 5 verified Prisma 6.19.3 with the engine-free client (`engineType = "client"`) and `@prisma/adapter-pg` 6.19.3; the full API test suite passes through a local PgBouncer in transaction mode with migrations over the direct connection; ownership-scoped update/delete with relation filters works; `prisma generate` needs no database variables. Phase 8 (2026-10-08) verified the live Supabase pooler in Singapore: the deployed API connects through the transaction pooler (port 6543) with `sslmode=verify-full`, and migrations run through the session pooler (port 5432). The pooler's certificate chain ends in the Supabase Root 2021 CA, which is not in Node's default trust store, so the public root certificate is committed (`apps/api/certs/prod-ca-2021.crt`) and trusted through `NODE_EXTRA_CA_CERTS`; Prisma's migration engine gets it through `sslaccept=strict` and `sslcert`. Without the CA, and with a wrong CA, both connections are rejected. Details: [deployment.md](../deployment.md), section 3.
 - Date: 2026-10-08
 
 ## Context
@@ -12,6 +12,7 @@ The stack fixes PostgreSQL on Supabase and Prisma 6 with the pg driver adapter (
 
 - **Prisma version:** an exact Prisma 6 release that supports the engine-free client (`engineType = "client"`) with `@prisma/adapter-pg`. The exact version is pinned in Phase 5 after verifying the configuration; Prisma 7 is not used.
 - **Connections:** runtime uses `DATABASE_URL` (Supabase pooler, transaction mode). Migrations use `DIRECT_URL` (session pooler or direct connection). One Prisma client instance per process (`lib/prisma.ts`).
+- **TLS:** certificate and host name are always verified against the Supabase root CA (`sslmode=verify-full` at runtime; strict verification enforced by the production migration script). Verification is never disabled.
 - **Schema conventions** (implemented in Phase 3):
   - UUID primary keys
   - foreign keys `Project.ownerId -> User.id`, `Task.projectId -> Project.id` (`ON DELETE CASCADE`), `RevokedToken.userId -> User.id`
@@ -41,7 +42,8 @@ Supabase's pooler is the supported way to reach the database from an IPv4-only h
 
 ## Tradeoffs
 
-- Transaction-mode pooling restricts session features such as named prepared statements; the pg adapter's behavior with it must be verified.
+- Transaction-mode pooling restricts session features such as named prepared statements; the pg adapter works with it (verified locally with PgBouncer and against the live pooler).
+- The Supabase root CA file must be replaced if Supabase rotates its CA (the current one is valid until 2031).
 - Two connection strings must be managed per environment.
 - Docker is required to run the integration tests locally.
 

@@ -1,7 +1,7 @@
 # ADR-0004: Web authentication through a same-origin API rewrite
 
-- Status: accepted, with pending validation
-- Pending validation: header forwarding through the deployed Vercel rewrite (`Origin`, `Set-Cookie`, client IP); the route-handler proxy is the fallback if it fails (Phase 8 and 10). Verified locally in Phase 6 with `next start`: the session cookie is set for the web origin (host-only, httpOnly, SameSite=Lax), and `Origin`, methods and JSON bodies reach the API unchanged (a foreign Origin is rejected with 403). The local Next.js server passes a client-supplied `X-Forwarded-For` through unchanged and does not add the caller's address; the rate-limit design does not depend on it (ADR-0010).
+- Status: accepted
+- Validation: verified locally in Phase 6 with `next start`, and on the deployed Vercel rewrite in Phase 8 (2026-10-08, see [deployment.md](../deployment.md), section 9). Through `https://pm-system-harsha.vercel.app/api/*` the rewrite forwards `Origin` unchanged (a foreign origin gets 403 `ORIGIN_NOT_ALLOWED`, a cookie request without `Origin` gets 403) and passes `Set-Cookie` back unchanged. In Chrome the session cookie `pm_session` is stored for the Vercel host only (no `Domain`), with `HttpOnly; Secure; SameSite=Lax; Path=/`; `document.cookie` cannot read it, no token is kept in web storage, and the browser never contacts the API host directly. Login, `GET /api/auth/me`, CRUD, dashboard and logout (cookie cleared, token revoked) work through the rewrite. The rewrite runs on Vercel's edge, not in a serverless function. Whether Vercel adds the client address to `X-Forwarded-For` is not observable without logging it; the rate-limit design does not depend on it (ADR-0010). The route-handler fallback was not needed.
 - Date: 2026-10-08
 
 ## Context
@@ -35,10 +35,10 @@ The rewrite turns the API into a same-origin endpoint with a single configuratio
 
 - Every web API call has an extra network hop through Vercel.
 - The API sees Vercel's IP as the connecting address for web requests; rate limiting is designed around this (ADR-0010).
-- Header forwarding by the rewrite (`Origin`, `Set-Cookie`, `X-Forwarded-For`) must be verified on the real deployment.
+- Header forwarding by the rewrite (`Origin`, `Set-Cookie`) was verified on the real deployment (Phase 8).
 
 ## Consequences
 
 - `API_ORIGIN` is a server-side variable on Vercel; no `NEXT_PUBLIC_*` variable is needed.
-- Phase 8/10 includes a check that login, cookie storage, the origin check and logout work through the deployed rewrite; if not, switch to the route-handler fallback.
+- Login, cookie storage, the origin check and logout were verified through the deployed rewrite in Phase 8; the route-handler fallback remains documented but unused.
 - Cookie name and attributes are finalized in Phase 4.
