@@ -48,3 +48,23 @@ Status: `planned` until implemented, then `done` with a link to the test file.
 | SEC-09 | (logger) | - | - | log output contains no token, cookie or password values | planned |
 
 Non-functional requirements (WEB, API, DB, DOC, SUB) are verified by review against [requirements.md](requirements.md) during Phase 9.
+
+## Database design mapping
+
+Links requirements to the schema elements in [database-design.md](database-design.md) that support them. Planned database-level tests are listed where the database itself enforces the rule.
+
+| Req | Tables / schema elements | Planned database-level tests |
+|---|---|---|
+| AUTH-01, AUTH-02 | `users`; unique `users_email_key`; `users_email_check` (lowercase) | duplicate email in different case returns 409 |
+| AUTH-03 | `users.password_hash` (hash only) | stored value is a bcrypt hash |
+| AUTH-04, AUTH-06 | `users_email_key` lookup; `users_pkey` lookup | (covered by AUTH tests) |
+| AUTH-05, AUTH-07 | `revoked_tokens` (`jti` primary key, `expires_at`) | revoked `jti` rejected; second session unaffected |
+| AUTH-08, SYNC-01 | single database for both clients | (covered by AUTH-08, SYNC-02) |
+| PROJ-01 to PROJ-04, PROJ-06 | `projects`; `project_status` enum; `projects_dates_check`; `varchar` limits; non-blank name check | endDate before startDate rejected |
+| PROJ-05 | `tasks.project_id` `ON DELETE CASCADE` | deleting a project removes its tasks |
+| TASK-01 to TASK-08 | `tasks`; `task_status`, `task_priority` enums; FK to `projects` | task cannot reference a missing project |
+| DASH-01, DASH-02 | ownership-scoped counts over `projects` and `tasks` joined to `projects` | counts per user with two users' data |
+| SRCH-01 to SRCH-05 | ownership-scoped `ILIKE` on `name`; enum filters; `(owner_id, created_at)` and `(project_id, created_at)` indexes | search terms containing `%` or `_` matched literally |
+| SEC-02 | ownership chain `users -> projects -> tasks` (no `tasks.owner_id`) | cross-user access returns 404 |
+| SEC-05 | parameterized queries only | SQL-like search strings treated as text |
+| DB-01 to DB-05 | all tables, constraints, indexes, migration strategy | migrations apply cleanly to an empty database |

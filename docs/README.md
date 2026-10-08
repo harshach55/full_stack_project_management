@@ -9,6 +9,7 @@ Planning and design documents for the Project Management System (web, Android, s
 | [traceability-matrix.md](traceability-matrix.md) | Requirement to endpoint, screen and test mapping |
 | [user-flows.md](user-flows.md) | Screen inventory and main user flows for web and mobile |
 | [architecture.md](architecture.md) | System architecture: components, flows, security, deployment, environment, testing, risks |
+| [database-design.md](database-design.md) | Database design: tables, constraints, indexes, ER diagram, ownership queries, migration strategy |
 | [decisions/](decisions/) | Architecture decision records (ADRs) |
 
 ## Architecture decision records
@@ -27,8 +28,9 @@ Planning and design documents for the Project Management System (web, Android, s
 | [0010](decisions/0010-security-architecture.md) | Security architecture |
 | [0011](decisions/0011-deployment-architecture.md) | Deployment architecture |
 | [0012](decisions/0012-client-application-architecture.md) | Client application architecture (web and mobile) |
+| [0013](decisions/0013-database-schema-design.md) | Database schema design |
 
-Later phases add database (ER diagram), API contract, testing and deployment documents to this folder.
+Later phases add API contract, testing and deployment documents to this folder.
 
 ## Conventions
 
