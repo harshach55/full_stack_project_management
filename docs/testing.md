@@ -36,6 +36,7 @@ pnpm test                                # all packages
 pnpm --filter @pm/api test               # API only
 pnpm --filter @pm/api test:coverage      # API with coverage
 pnpm typecheck
+pnpm --filter @pm/api docs:openapi:check # docs/openapi.json matches the generated OpenAPI document
 ```
 
 The API suite applies all migrations to the test database first, truncates tables between files and generates its own JWT signing key. Files run one at a time because they share the database.
@@ -104,6 +105,7 @@ Automated tests run against a local database. These checks cover the real browse
 | Phase 9, production web at 360x800 (phone emulation), 768x1024 and 1280x800 in Chrome | WEB-02. Empty state: login, register, dashboard, projects list, new project form, tasks list with filters, new task form, project not-found state and the main navigation, 27 of 27 passed. Populated state, with one temporary project and task whose names are 118 and 117 characters long each including an unbroken hyphenated token of 87 or 88 characters: projects list, project detail with its task, project edit form, task list with quick actions, task detail, task edit form and dashboard, 21 of 21 passed. On every page the document width equals the viewport (no horizontal scrolling), no element extends past the viewport, no controls overlap, no button or field is smaller than 32 pixels, the smallest text is 12 pixels, and long names wrap without being cut. The only hidden text is three intentional screen-reader-only labels. The temporary records were deleted and the session logged out afterwards. |
 | Phase 8, physical Android phone against the production API | App start, register, dashboard, project and task create, read and update, session restore after restart, logout and login, offline message in airplane mode, cleanup; changes appear on the web app and the other way round. |
 | Phase 10, release APK on a physical Android phone against the production API | EAS build `8ea20e9b-2d0d-4973-a703-b42e124cc25c` installed from its link: app launch, login, dashboard, project creation, task creation, task status and priority changes, task search and filters, changes visible on the web app with the same account and the other way round, web logout leaving the phone signed in, phone logout, offline message in airplane mode; 11 of 11 passed. The APK bundle contains the HTTPS production API address and no LAN address ([deployment.md](deployment.md), section 7). |
+| Phase 11, exported OpenAPI document | [`openapi.json`](openapi.json) written by `docs:openapi` from the API's own `buildOpenApiDocument()`: generated twice with the same SHA-256, identical to the production `/api/docs.json`, valid OpenAPI 3.0.3 (checked with swagger-parser outside the repository), 16 operations matching the route list in `security.test.ts`. `docs:openapi:check` also passes on a fresh clone. |
 
 ### Main flows (F1 to F8)
 
@@ -138,8 +140,8 @@ Review against [requirements.md](requirements.md) in Phase 9. "Later phase" item
 | MOB-01, MOB-12 | verified | Phase 10 release APK (EAS build `8ea20e9b`) installed and run on a physical Android phone; its bundle uses the HTTPS production API set in the EAS profile (section 6) |
 | SYNC-01, SYNC-02 | verified | One API and database (Phase 8); sync on device |
 | DOC-02 to DOC-04 | verified | App READMEs, `.env.example` templates, [database-design.md](database-design.md), [deployment.md](deployment.md) |
-| DOC-01 | partly verified | Each app README has setup steps; the final root README is a later phase |
+| DOC-01 | verified | Root [README](../README.md) with setup for API, web and mobile, linking each app README (Phase 11); install, shared build and Prisma client generation rechecked on a fresh clone in Phase 11; the apps were run locally in Phases 5 to 7 |
 | SUB-02, SUB-04 | verified | ER diagram in [database-design.md](database-design.md); URLs in [deployment.md](deployment.md) |
-| SUB-03 | partly verified | Swagger UI and OpenAPI JSON served in production; the exported OpenAPI file is a later phase |
+| SUB-03 | verified | Swagger UI and OpenAPI JSON served in production; exported file [`openapi.json`](openapi.json) identical to the served document (section 6) |
 | SUB-05 | verified | APK link and SHA-256 in [deployment.md](deployment.md), section 7 |
 | SUB-01, SUB-06 | later phase | Repository visibility and screen recording are part of submission |

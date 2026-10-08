@@ -41,5 +41,5 @@ The denylist gives real per-token logout with one primary-key lookup per request
 
 - Phase 3 adds the `RevokedToken` model.
 - Phase 4 defines the error codes `UNAUTHENTICATED`, `TOKEN_EXPIRED`, `TOKEN_REVOKED`, `INVALID_CREDENTIALS` (ADR-0014).
-- Phase 5 implements the cleanup of expired revocation rows (on startup and on an interval).
+- Phase 5 implements the cleanup of expired revocation rows (on startup and on an interval). Note: this cleanup was deferred in Phase 5 and is not implemented; expired rows are harmless ([backend-design.md](../backend-design.md), section 16).
 - Tests sign tokens with a past expiry to cover `TOKEN_EXPIRED`.

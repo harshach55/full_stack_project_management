@@ -44,6 +44,8 @@ apps/api/
   tests/
 ```
 
+As implemented, the tree differs in small ways: `middleware/` also has `client-type.ts` (the `X-Client-Type` check) and `json-content-type.ts` (415 for non-JSON bodies), and the 404 handler sits in `error-handler.ts`; the dashboard and health modules have no separate controller; the revocation lookup is in `middleware/authenticate.ts` and the insert in `modules/auth/auth.service.ts` instead of a `tokens/` module.
+
 Request/response schemas, enums, error codes and field limits come from `packages/shared` (ADR-0008); the API does not redefine them.
 
 ## 2. Responsibilities
@@ -69,13 +71,13 @@ Service function signatures take the caller's id first, for example `getProject(
 2. Create the logger and the Prisma client.
 3. `createApp({ config, prisma, logger })` builds the Express app. Dependencies are passed in so tests can supply a test database and test configuration.
 4. Listen on `PORT`.
-5. Run revoked-token cleanup once (non-blocking; a failure is logged and does not stop startup), then every hour. Disabled when `NODE_ENV=test`.
+5. Run revoked-token cleanup once (non-blocking; a failure is logged and does not stop startup), then every hour. Disabled when `NODE_ENV=test`. Deferred, not implemented (section 16).
 
 The server does not run migrations (ADR-0011) and does not test the database connection before listening; `/api/health` reports database state.
 
 **Graceful shutdown** on `SIGTERM` and `SIGINT` (Render sends `SIGTERM` on deploy and on sleep):
 1. Stop accepting new connections (`server.close`).
-2. Stop the cleanup interval.
+2. Stop the cleanup interval (not implemented, see step 5 above).
 3. Wait for in-flight requests to finish, at most 10 seconds.
 4. Disconnect Prisma, flush logs, exit 0. If the timeout is reached, log it and exit 1.
 

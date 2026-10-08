@@ -575,3 +575,4 @@ The API has no client-specific business logic. Web and mobile call the same endp
 - It documents every endpoint in this contract, both login/register response modes, the cookie and Bearer security schemes, and the error shape with the code list.
 - `/api/docs` and `/api/docs.json` are public, not rate limited and not origin checked.
 - This phase creates no OpenAPI files or code.
+- Since Phase 11 the generated document is also committed as [openapi.json](openapi.json), with a check that it matches the implementation ([apps/api/README.md](../apps/api/README.md), section "OpenAPI export").

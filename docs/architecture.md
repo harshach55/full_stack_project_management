@@ -66,7 +66,8 @@ full_stack_project_management/
   packages/
     shared/       Zod schemas, enums, request/response types, error codes,
                   platform-neutral validation helpers
-  docs/           requirements, architecture, ADRs, later: database, API, testing
+  docs/           requirements, architecture, ADRs, database, API contract,
+                  deployment, testing, security audit, OpenAPI export
   package.json            root scripts only (no runtime dependencies)
   pnpm-workspace.yaml     workspace definition
   .gitignore  .gitattributes  README.md
@@ -250,7 +251,7 @@ JWT access tokens, 7-day lifetime, no refresh tokens (PD-14). Logout revokes one
 3. Look up `jti` in `RevokedToken` (primary key lookup). Found: 401 `TOKEN_REVOKED` (ADR-0014).
 4. Set `req.auth = { userId, jti, exp, method: 'bearer' | 'cookie' }`.
 
-**Logout** (`POST /api/auth/logout`): insert the current `jti` with its `exp` into `RevokedToken`; for cookie sessions also clear the cookie. Other tokens of the same user are untouched, so web and mobile sessions are independent. Expired rows are deleted by a cleanup step that runs on server start and periodically (exact mechanism in Phase 5).
+**Logout** (`POST /api/auth/logout`): insert the current `jti` with its `exp` into `RevokedToken`; for cookie sessions also clear the cookie. Other tokens of the same user are untouched, so web and mobile sessions are independent. Expired rows were planned to be deleted by a cleanup step on server start and periodically; that step was deferred in Phase 5 and is not implemented. Expired rows are harmless because an expired token is rejected before the table is checked ([backend-design.md](backend-design.md), section 16).
 
 **Me** (`GET /api/auth/me`): returns the user's public fields, loaded by `req.auth.userId`.
 
@@ -495,7 +496,7 @@ apps/mobile/
 - **Network detection:** NetInfo feeds TanStack Query's online manager; screens show an offline message with Retry. Requests use a timeout so a sleeping server does not leave a spinner forever.
 - **Quick actions:** mark completed / change status / change priority build the complete task representation from the cached task, change one field and send `PUT` (PD-07).
 - **Projects:** list, detail, create, edit and delete (PD-10, amended in Phase 7).
-- **Android build:** EAS Build with an APK profile (later phase); the API URL is set per profile at build time.
+- **Android build:** EAS Build with the `preview` profile in `apps/mobile/eas.json` (APK output), which sets the API URL at build time. The release APK (v0.1.0) was built in Phase 10, published as a GitHub Release and checked on a physical Android phone ([deployment.md](deployment.md#release-build-eas)).
 
 ## 18. Shared package
 
@@ -569,12 +570,12 @@ flowchart LR
 
 | Target | Approach |
 |---|---|
-| Region | Singapore for Render and Supabase if available on the selected plans; verified when the services are created. |
+| Region | Singapore for Render, Supabase and the Vercel functions (verified in Phase 8, [deployment.md](deployment.md), section 1). |
 | Supabase | One project. Runtime uses the pooled connection string (transaction mode); migrations use the session/direct string. Data API disabled. TLS is verified against the Supabase root CA, committed as `apps/api/certs/prod-ca-2021.crt` (ADR-0007). |
 | Migrations | Controlled and manual: `prisma migrate deploy` run from a developer machine with `DIRECT_URL` (git-ignored local file), checked with `prisma migrate status` before and after. Never run by the Render build or at server start. |
 | Render | Web service from the monorepo. Build: install with pnpm (frozen lockfile, devDependencies included), build `shared`, generate Prisma client, build `api` (no migrations). Start: `node dist/server.js`. Health check path `/api/health`. Auto-deploy off; deployed manually after the migration is verified. |
 | Vercel | Project root `apps/web`; pnpm workspace install; `shared` built before the web build; `API_ORIGIN` set to the Render URL. |
-| EAS | Build profile producing an APK with `EXPO_PUBLIC_API_URL` set to the Render URL. |
+| EAS | `preview` profile producing an APK with `EXPO_PUBLIC_API_URL` set to the Render URL; release v0.1.0 built in Phase 10. |
 | Node | One version (Node 24 LTS) locally, on Render, on Vercel and for EAS builds. Compatibility with the pinned Prisma, Next.js, Expo and tooling versions is verified at scaffold time; if it fails, the whole project moves to a supported LTS version together. |
 
 **Deployment sequence** (initial deployment and every release that contains a migration):
@@ -592,7 +593,7 @@ Because the database is migrated before the new API is deployed, migrations stay
 
 ## 22. Environment configuration
 
-Variable names are final; values never appear in the repository. `.env.example` files with placeholders are added in the implementation phases.
+Variable names are final; values never appear in the repository. `.env.example` templates with placeholders are committed in the repository root and in each app.
 
 **API** (`apps/api`, all server-only)
 
@@ -634,7 +635,7 @@ Anything prefixed `EXPO_PUBLIC_` is readable inside the app package, so it must 
 | Shared schemas | Vitest | Unit tests for every schema: valid input, each invalid case from SEC-03 |
 | API services/helpers | Vitest | Unit tests where logic is non-trivial (token handling, mappers, date conversion) |
 | API endpoints | Vitest + Supertest | Integration tests against `createApp()` and a real PostgreSQL test database |
-| Web / mobile | Manual checklist | Flows F1 to F8 from [user-flows.md](user-flows.md), tracked in the traceability matrix |
+| Web / mobile | Vitest (Testing Library for web) and a manual checklist | Client logic and screens in automated tests; flows F1 to F8 from [user-flows.md](user-flows.md) checked manually, on a physical device and in production ([testing.md](testing.md)) |
 
 Test database: a disposable local PostgreSQL in Docker, never the Supabase database. Docker is used only for this test database; the application itself is not containerized. Migrations are applied before the run; tables are truncated between test files. Test helpers create users and log in through the real endpoints to get cookies and tokens.
 
@@ -668,12 +669,12 @@ Security test set (all required; mapped to tests in [testing.md](testing.md), se
 |---|---|---|---|---|
 | 1 | Cross-site web/API authentication: cookies set by the API domain are third-party for the web app | Web login fails in some browsers | Same-origin `/api` rewrite on Vercel (ADR-0004). Fallback: a Next.js route handler that forwards requests explicitly | Phase 6 locally, Phase 8 deployed |
 | 2 | Proxy headers and client IP: `Origin`, `Set-Cookie` and client IP may change through the Vercel hop | Origin check rejects valid requests, cookie not stored, or rate limits hit all users | Verify headers through the deployed rewrite; rate limits keyed on IP + email (section 15); `trust proxy` set to exactly one hop | Phase 8 (`Origin` and `Set-Cookie` verified) |
-| 3 | Render free tier sleeps after inactivity; first request can take about a minute | Timeouts or "network error" during review or demo | Health endpoint; "server is starting" message with a longer first-request timeout; warm-up before the demo; README note | Phase 7, Phase 10, Phase 12 |
+| 3 | Render free tier sleeps after inactivity; first request can take about a minute | Timeouts or "network error" during review or demo | Health endpoint; "server is starting" message with a longer first-request timeout; warm-up before the demo; README note | Phases 6 and 7 (timeout message), Phase 8 (deployed), Phase 11 (README note), Phase 12 (warm-up) |
 | 4 | Supabase connectivity and pooling: direct host is IPv6-only, Render has no outbound IPv6; transaction pooler restricts prepared statements | API cannot connect, or queries fail intermittently | Pooled connection string for runtime, session/direct string only for migrations; verify the pg adapter against the transaction pooler | Phase 5 (local pooler), Phase 8 (live pooler with verified TLS) |
 | 5 | Prisma version stability: Prisma 7 is current and configured differently | Build errors or mixed configuration | Pin an exact Prisma 6 version that supports the engine-free client with the pg adapter; follow Prisma 6 documentation only | Phase 3 and Phase 5 |
 | 6 | pnpm monorepo with Expo Metro: symlinked workspaces and package resolution | Mobile build cannot resolve `shared` or React | Use Expo's monorepo configuration for the pinned SDK; fall back to `node-linker=hoisted`; one React and one Zod version | Start of Phase 7 (before screens) |
-| 7 | APK build availability: EAS free queue delays, AAB default | Late or wrong artifact | APK build profile; Expo account ready early; first test build well before the deadline | Phase 7 and Phase 10 |
-| 8 | Environment configuration mistakes | Wrong API URL baked into APK, missing secrets, CORS rejections | Startup validation of API env; documented variable tables; checklist per platform | Phase 5 and Phase 10 |
+| 7 | APK build availability: EAS free queue delays, AAB default | Late or wrong artifact | APK build profile; Expo account ready early; first test build well before the deadline | Phase 10 (APK built with the `preview` profile and installed on a phone) |
+| 8 | Environment configuration mistakes | Wrong API URL baked into APK, missing secrets, CORS rejections | Startup validation of API env; documented variable tables; checklist per platform | Phase 5 (startup validation), Phase 8 (platform settings), Phase 10 (API address inside the APK checked) |
 | 9 | Date/timezone handling | Dates shown one day off | `DATE` columns, `YYYY-MM-DD` strings in API and clients, no `new Date('YYYY-MM-DD')` for display | Phase 3, Phase 4 tests, Phase 6/7 UI |
 | 10 | Windows development compatibility | Scripts fail on Windows or on Linux CI | Cross-platform scripts (no shell-specific syntax), LF line endings via `.gitattributes`, Node 24 pinned | Phase 5 onward |
-| 11 | Free Supabase project pauses after a period of inactivity | Deployed API cannot reach the database during evaluation | Keep the project active during the evaluation period; health check reports the database state; README note | Phase 10 and Phase 12 |
+| 11 | Free Supabase project pauses after a period of inactivity | Deployed API cannot reach the database during evaluation | Keep the project active during the evaluation period; health check reports the database state; README note | Phase 8 (health check in production), Phase 11 (README note), Phase 12 (keep active) |

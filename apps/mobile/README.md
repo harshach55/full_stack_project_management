@@ -96,7 +96,7 @@ npx eas-cli@24.12.0 login
 npx eas-cli@24.12.0 build -p android --profile preview
 ```
 
-EAS signs the APK with a keystore it stores itself; no signing files are kept in the repository. When the build finishes, EAS prints the APK link; open it on the phone to install. The current release, its checksum and its verification are in [docs/deployment.md](../../docs/deployment.md), section 7.
+EAS signs the APK with a keystore it stores itself; no signing files are kept in the repository. When the build finishes, EAS prints the APK link; open it on the phone to install. The current release is [v0.1.0 on GitHub](https://github.com/harshach55/full_stack_project_management/releases/tag/v0.1.0); its checksum and verification are in [docs/deployment.md](../../docs/deployment.md), section 7.
 
 ## Notes
 

@@ -324,7 +324,7 @@ Follows ADR-0003: JWT with a unique `jti` per issued token, 7-day lifetime, no r
 - **Independent sessions:** web and mobile logins receive different `jti` values. Logging out on one platform inserts only that platform's `jti`, so the other token keeps working (PD-18).
 - **Expiration:** a token past `exp` is rejected by signature verification before the table is consulted, so rows whose `expires_at` has passed can be deleted safely.
 - **Size:** the table never holds more than 7 days of logouts.
-- **Cleanup:** the cleanup statement above is run by the API on startup and on an interval; the mechanism is implemented in Phase 5. Until it runs, expired rows are harmless.
+- **Cleanup:** the cleanup statement above was planned to run on API startup and on an interval. It was deferred in Phase 5 and is not implemented ([backend-design.md](backend-design.md), section 16). Expired rows are harmless.
 - **No token values stored:** only the `jti`, never the JWT itself.
 
 ## 15. Timestamps and dates
@@ -356,7 +356,7 @@ Deliberately not stored:
 
 ## 17. Prisma mapping plan
 
-The Prisma schema is written in Phase 5. This section fixes the intended mapping; exact syntax is checked against the pinned Prisma 6 version at that time. ADR-0007's pending validation (exact Prisma 6 version and the pg adapter with Supabase's transaction-mode pooler) is not affected by this design and remains open.
+The Prisma schema is written in Phase 5. This section fixes the intended mapping; exact syntax is checked against the pinned Prisma 6 version at that time. ADR-0007's pending validation (exact Prisma 6 version and the pg adapter with Supabase's transaction-mode pooler) is not affected by this design and remained open at that time; it was closed in Phases 5 and 8, and ADR-0007 is accepted.
 
 | Database | Prisma |
 |---|---|

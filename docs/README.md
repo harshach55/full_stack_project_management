@@ -14,6 +14,7 @@ Planning and design documents for the Project Management System (web, Android, s
 | [backend-design.md](backend-design.md) | Backend implementation blueprint: modules, middleware order, services, errors, logging, configuration, test contract |
 | [deployment.md](deployment.md) | Production setup: Supabase, Render, Vercel, migrations, environment variables, TLS, verification, rollback |
 | [testing.md](testing.md) | Test suites, how to run them, coverage, manual and deployed verification, non-functional review |
+| [openapi.json](openapi.json) | OpenAPI 3.0 document exported from the API (the same document as `/api/docs.json`); regenerate with `pnpm --filter @pm/api docs:openapi` |
 | [security-audit.md](security-audit.md) | Phase 9 security audit: ADR-0010 measures, ownership review, logging, dependency audit, known risks |
 | [decisions/](decisions/) | Architecture decision records (ADRs) |
 

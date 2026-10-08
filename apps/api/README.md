@@ -42,9 +42,10 @@ From the repository root:
 4. Create `apps/api/.env` from `apps/api/.env.example`:
    - `DATABASE_URL=<LOCAL_DATABASE_URL>` and `DIRECT_URL=<LOCAL_DATABASE_URL>`
    - `JWT_SECRET=` a generated value (the command is in the template)
-5. Build the shared package and apply migrations to `pm_dev`:
+5. Build the shared package, generate the Prisma client (`pnpm install` does not generate it) and apply migrations to `pm_dev`:
    ```bash
    pnpm --filter @pm/shared build
+   pnpm --filter @pm/api db:generate
    pnpm --filter @pm/api db:migrate:deploy
    ```
 6. Start the API:
@@ -52,7 +53,7 @@ From the repository root:
    pnpm --filter @pm/api dev
    ```
 
-The API runs on port 4000 under `/api`. Documentation: `/api/docs` (Swagger UI) and `/api/docs.json` (OpenAPI).
+The API runs on port 4000 under `/api`. Documentation: `/api/docs` (Swagger UI) and `/api/docs.json` (OpenAPI). The same document is committed as [`docs/openapi.json`](../../docs/openapi.json); see "OpenAPI export" below.
 
 If you change `PM_LOCAL_DB_PASSWORD` after the first start, recreate the database volume (`docker compose down -v`), because PostgreSQL keeps the password it was initialized with.
 
@@ -66,6 +67,8 @@ If you change `PM_LOCAL_DB_PASSWORD` after the first start, recreate the databas
 | `typecheck` | Type-check sources and tests |
 | `test` | Run the test suite against the local test database |
 | `test:coverage` | Tests with a coverage report |
+| `db:generate` | Generate the Prisma client (needed after install and after schema changes) |
+| `docs:openapi` / `docs:openapi:check` | Write `docs/openapi.json` / check that it matches the generated document |
 | `db:migrate:dev` | Create and apply a migration (local database only) |
 | `db:migrate:deploy` / `db:migrate:status` | Apply / inspect migrations (local database) |
 | `db:prod:check` / `db:prod:status` / `db:prod:deploy` | Production database: connection check, status, apply migrations (see Migrations) |
@@ -93,6 +96,16 @@ pnpm --filter @pm/api test
 ```
 
 `<LOCAL_POOLED_TEST_DATABASE_URL>` is the same as `<LOCAL_TEST_DATABASE_URL>` with port `6433` (PgBouncer). Migrations always use the direct connection.
+
+## OpenAPI export
+
+[`docs/openapi.json`](../../docs/openapi.json) is the document served at `/api/docs.json`, written by [`scripts/export-openapi.ts`](scripts/export-openapi.ts). The script calls the same `buildOpenApiDocument()` the API uses, so it needs no server, database or environment variables, only the compiled shared package:
+
+```bash
+pnpm --filter @pm/shared build
+pnpm --filter @pm/api docs:openapi         # regenerate after changing a route or schema
+pnpm --filter @pm/api docs:openapi:check   # exit 1 if the committed file is out of date
+```
 
 ## Migrations
 

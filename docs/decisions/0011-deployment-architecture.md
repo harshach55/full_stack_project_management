@@ -84,5 +84,5 @@ Manual, verified migrations make each schema change an explicit, reviewable step
 ## Consequences
 
 - [deployment.md](../deployment.md) documents each platform's settings and the deployment sequence step by step.
-- An Expo account and a first APK test build are prepared early (Phase 7) to avoid queue delays near the deadline.
+- An Expo account and a first APK test build are prepared early (Phase 7) to avoid queue delays near the deadline. In practice the first EAS build was the Phase 10 release build (see Validation above).
 - If the rewrite header verification (ADR-0004) fails, the web deployment switches to the route-handler proxy.

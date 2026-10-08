@@ -190,7 +190,7 @@ Release build of 2026-10-09:
 |---|---|
 | EAS build | `8ea20e9b-2d0d-4973-a703-b42e124cc25c`, profile `preview`, status finished |
 | Source | Commit `31424cd` plus the EAS configuration, committed unchanged afterwards as `75932a2` |
-| APK | https://expo.dev/artifacts/eas/txPUFKkccknWAyumw7dkcZ7-nguSs0O0c9fIemGCCuQ.apk (also attached to the GitHub Release `v0.1.0`) |
+| APK | https://expo.dev/artifacts/eas/txPUFKkccknWAyumw7dkcZ7-nguSs0O0c9fIemGCCuQ.apk, also attached to the GitHub Release [`v0.1.0`](https://github.com/harshach55/full_stack_project_management/releases/tag/v0.1.0) as [`project-manager-v0.1.0.apk`](https://github.com/harshach55/full_stack_project_management/releases/download/v0.1.0/project-manager-v0.1.0.apk) |
 | Size | 99,568,528 bytes |
 | SHA-256 | `c167b270ee8f1cdc909337254b489dc11559f605b573f46e8464b23b271c9c03` |
 
