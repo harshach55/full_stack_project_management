@@ -13,7 +13,10 @@
     "db:generate": "prisma generate",
     "db:migrate:dev": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
-    "db:migrate:status": "prisma migrate status"
+    "db:migrate:status": "prisma migrate status",
+    "db:prod:check": "node scripts/prisma-production.mjs check",
+    "db:prod:status": "node scripts/prisma-production.mjs status",
+    "db:prod:deploy": "node scripts/prisma-production.mjs deploy"
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "9.1.0",
