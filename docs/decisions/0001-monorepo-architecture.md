@@ -1,7 +1,7 @@
 # ADR-0001: Monorepo with pnpm workspaces
 
-- Status: accepted, with pending validation
-- Pending validation: Node 24 LTS compatibility with the pinned Expo version (Phase 7). Web part validated in Phase 6: Node 24.11.1 with Next.js 16.4.0, React 19.3.0, TanStack Query 5.104.1, Tailwind CSS 4.3.3 and jsdom 29.1.1 for tests (jsdom 30 requires Node 24.15 or later, so it was not used). Backend part validated in Phase 5: Node 24.11.1 with Prisma 6.19.3, Express 5.2.1, TypeScript 5.9.3, Zod 4.6.5, Vitest 5.0.3 and pnpm 10.34.6 (install, typecheck, build, tests and the compiled server).
+- Status: accepted
+- Validated: Node 24.11.1 with every app. Mobile (Phase 7): Expo SDK 57.0.27 with React Native 0.86.3 (requires Node 24.3 or later) installs, typechecks, bundles for Android and runs the Metro dev server; the mobile app uses TypeScript 6.0.3 as required by the Expo SDK, the other packages stay on 5.9.3. Web part (Phase 6): Node 24.11.1 with Next.js 16.4.0, React 19.3.0, TanStack Query 5.104.1, Tailwind CSS 4.3.3 and jsdom 29.1.1 for tests (jsdom 30 requires Node 24.15 or later, so it was not used). Backend part validated in Phase 5: Node 24.11.1 with Prisma 6.19.3, Express 5.2.1, TypeScript 5.9.3, Zod 4.6.5, Vitest 5.0.3 and pnpm 10.34.6 (install, typecheck, build, tests and the compiled server).
 - Date: 2026-10-08
 
 ## Context

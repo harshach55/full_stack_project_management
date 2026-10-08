@@ -1,7 +1,7 @@
 # ADR-0008: Shared package for schemas and types
 
-- Status: accepted, with pending validation
-- Pending validation: Metro resolution of the compiled workspace package on the pinned Expo SDK; `node-linker=hoisted` is the fallback (start of Phase 7).
+- Status: accepted
+- Validated in Phase 7 (Expo SDK 57.0.27, React Native 0.86.3, pnpm isolated layout): Expo's default Metro configuration resolves the compiled `@pm/shared` package through the workspace symlink without `node-linker=hoisted`; `expo export --platform android` bundles and compiles it to Hermes bytecode, and the Metro dev server serves the Android bundle with the shared modules and a single React copy.
 - Date: 2026-10-08
 
 ## Context

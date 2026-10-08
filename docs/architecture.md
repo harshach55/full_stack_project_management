@@ -467,32 +467,35 @@ See [ADR-0005](decisions/0005-mobile-authentication.md) and [ADR-0012](decisions
 ```
 apps/mobile/
   app/                          Expo Router file-based routes
-    _layout.tsx                 providers, auth gate
+    _layout.tsx                 providers and the single auth gate (Stack.Protected)
     (auth)/login.tsx, register.tsx
-    (app)/_layout.tsx           bottom tabs: Dashboard, Projects, Tasks
-    (app)/dashboard.tsx
-    (app)/projects/index.tsx, [id].tsx
-    (app)/tasks/index.tsx, [id].tsx, new.tsx, [id]/edit.tsx
+    (app)/_layout.tsx           stack for detail and form screens
+    (app)/(tabs)/_layout.tsx    bottom tabs: Dashboard (index), Projects, Tasks
+    (app)/project/new.tsx, [id]/index.tsx, [id]/edit.tsx
+    (app)/task/new.tsx, [id]/index.tsx, [id]/edit.tsx
   src/
-    features/   auth/, dashboard/, projects/, tasks/   (queries, mutations, screens' components)
-    components/ shared UI (buttons, inputs, pickers, empty/error/offline states)
+    features/   api.ts (endpoint functions), hooks.ts (queries and mutations), labels.ts,
+                auth/, dashboard/, projects/, tasks/ (screens, task-body.ts full-PUT builder)
+    components/ buttons, fields, chips, cards, loading/empty/error/offline states
+    providers/  AppProviders (query client, NetInfo, AppState), AuthProvider (session state)
     lib/
-      api-client.ts      base URL, Bearer header, timeout, error normalization
-      auth-storage.ts    SecureStore get/set/delete for the token
-      query-client.ts    TanStack Query, onlineManager (NetInfo), focusManager (AppState)
-      dates.ts
-  app.config.ts          app config; reads EXPO_PUBLIC_API_URL
-  eas.json               build profiles (APK profile for distribution)
+      api-client.ts        base URL, X-Client-Type, Bearer header, timeout, error normalization
+      session-controller.ts  restore, login, register, logout, expiry (platform independent)
+      token-storage.ts     SecureStore get/set/delete for the token
+      query-client.ts      TanStack Query; session errors end the session
+      config.ts            EXPO_PUBLIC_API_URL
+  app.json               Expo config (Android only)
+  metro.config.js        Expo default Metro config (workspace aware)
 ```
 
-- **Navigation:** Expo Router. An auth gate in the root layout chooses between the `(auth)` and `(app)` groups based on the auth state.
-- **Auth state:** A small React context holds `status: 'checking' | 'signed-in' | 'signed-out'`, the current user and the session-expired flag. The token itself is read from SecureStore by the API client, not kept in React state.
+- **Navigation:** Expo Router. The root layout is the only auth gate: `Stack.Protected` makes the `(app)` group reachable only with a valid session and the `(auth)` group only without one.
+- **Auth state:** A small React context (`AuthProvider`) holds `checking | signedIn | signedOut | unreachable`, the current user and the session-expired notice. The token itself is read from SecureStore by the API client, not kept in React state.
 - **Server state:** TanStack Query, same patterns as the web app.
 - **Pull-to-refresh:** `RefreshControl` on every list and the dashboard calls the query's `refetch`.
 - **Network detection:** NetInfo feeds TanStack Query's online manager; screens show an offline message with Retry. Requests use a timeout so a sleeping server does not leave a spinner forever.
 - **Quick actions:** mark completed / change status / change priority build the complete task representation from the cached task, change one field and send `PUT` (PD-07).
-- **Project screens are read-only** (PD-10).
-- **Android build:** EAS Build with an APK profile; the API URL is set per profile at build time.
+- **Projects:** list, detail, create, edit and delete (PD-10, amended in Phase 7).
+- **Android build:** EAS Build with an APK profile (later phase); the API URL is set per profile at build time.
 
 ## 18. Shared package
 

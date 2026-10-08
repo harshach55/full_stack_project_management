@@ -31,7 +31,6 @@ Optional features are added only after all mandatory requirements are complete, 
 
 ## 4. Out of scope
 
-- Project create, edit and delete on mobile (PD-10)
 - iOS build (optional in the assessment)
 - Sharing projects between users, teams, roles or invitations
 - Password reset, email verification, social login
@@ -51,7 +50,7 @@ Optional features are added only after all mandatory requirements are complete, 
 | PD-07 | `PUT` is a full replacement of the editable representation. Every `PUT` body must contain the complete editable representation; partial bodies are rejected with 400. Applies to projects and tasks. | Quick actions (mobile status or priority change, mark completed) take the current task data, change the field locally and send the complete updated representation. |
 | PD-08 | A task's `projectId` cannot change after creation. | A `projectId` in a task update request is rejected. |
 | PD-09 | Deleting a project deletes its tasks (cascade). Clients ask for confirmation first. | Enforced by a database foreign key rule, not only by application code. |
-| PD-10 | Mobile supports viewing projects and full task management. No project create, edit or delete on mobile. | Matches the assessment's mobile requirements. |
+| PD-10 | Mobile supports viewing projects and full task management. Amended in Phase 7: mobile also creates, edits and deletes projects, as requested for Phase 7. | The assessment requires project viewing on mobile; project editing is additional and uses the same API endpoints and rules as the web app. |
 | PD-11 | `GET /api/tasks` without `projectId` returns all of the user's tasks (200, empty array if none match). `GET /api/tasks?projectId={id}` returns the matching tasks if the user owns the project. | If the project belongs to another user or does not exist, the response is 404 in both cases, so another user's project existence is never revealed. |
 | PD-12 | Search is case-insensitive partial matching on the name field. | Example: `des` matches "Website Redesign". |
 | PD-13 | Default list order is newest first (`createdAt DESC`). | Applies to project and task lists. |

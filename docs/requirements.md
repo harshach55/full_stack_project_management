@@ -78,7 +78,7 @@ Each requirement has an ID and acceptance criteria. Product decisions referenced
 | MOB-01 | Android app built with Expo, React Native and TypeScript, distributed as an APK. | Installs and runs on a physical Android device. |
 | MOB-02 | Register, login, logout. | Same rules and messages as the API. Registration logs the user in. |
 | MOB-03 | Dashboard. | Shows the five statistics from DASH-01. |
-| MOB-04 | View projects and tasks under a project. | Read-only project list and project detail with its tasks (PD-10). |
+| MOB-04 | View projects and tasks under a project. | Project list and project detail with its tasks (PD-10). Project create, edit and delete are also available (PD-10, amended in Phase 7). |
 | MOB-05 | Create, edit and delete tasks. | Delete asks for confirmation. |
 | MOB-06 | Mark completed, change status, change priority. | Changes are saved through the API and visible after refresh on web. |
 | MOB-07 | Search tasks; filter tasks by status and priority. | Same behavior as SRCH-03 and SRCH-04. |
