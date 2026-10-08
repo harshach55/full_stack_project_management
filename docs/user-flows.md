@@ -25,13 +25,14 @@ Shared layout for protected pages: header with app name, navigation (Dashboard, 
 | Login | Email, password, link to register |
 | Register | Full name, email, password |
 | Dashboard | Five statistic cards, pull-to-refresh |
-| Projects | Read-only project list with status, pull-to-refresh |
-| Project detail | Project info and its tasks, add task button, pull-to-refresh |
+| Projects | Project list with name search, status filter, new project button, pull-to-refresh (PD-10, amended in Phase 7) |
+| Project form | Create or edit: name, description, status, start date, end date |
+| Project detail | Project info and its tasks, edit, delete (with confirmation), add task button, pull-to-refresh |
 | Tasks | All tasks, search, status and priority filters, pull-to-refresh |
 | Task form | Create or edit: name, description, priority, status, due date |
 | Task detail / actions | Mark completed, change status, change priority, edit, delete (with confirmation) |
 
-Navigation: bottom tabs for Dashboard, Projects, Tasks; logout from the header or a profile menu.
+Navigation: bottom tabs for Dashboard, Projects, Tasks; the Dashboard screen shows the signed-in email and the logout button.
 
 ## 3. Shared UI states
 

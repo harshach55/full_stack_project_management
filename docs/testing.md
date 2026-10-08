@@ -106,6 +106,7 @@ Automated tests run against a local database. These checks cover the real browse
 | Phase 8, physical Android phone against the production API | App start, register, dashboard, project and task create, read and update, session restore after restart, logout and login, offline message in airplane mode, cleanup; changes appear on the web app and the other way round. |
 | Phase 10, release APK on a physical Android phone against the production API | EAS build `8ea20e9b-2d0d-4973-a703-b42e124cc25c` installed from its link: app launch, login, dashboard, project creation, task creation, task status and priority changes, task search and filters, changes visible on the web app with the same account and the other way round, web logout leaving the phone signed in, phone logout, offline message in airplane mode; 11 of 11 passed. The APK bundle contains the HTTPS production API address and no LAN address ([deployment.md](deployment.md), section 7). |
 | Phase 11, exported OpenAPI document | [`openapi.json`](openapi.json) written by `docs:openapi` from the API's own `buildOpenApiDocument()`: generated twice with the same SHA-256, identical to the production `/api/docs.json`, valid OpenAPI 3.0.3 (checked with swagger-parser outside the repository), 16 operations matching the route list in `security.test.ts`. `docs:openapi:check` also passes on a fresh clone. |
+| Phase 12, production before the demo recording | Health reports the database reachable; web login page loads and protected pages redirect to login without a session; Swagger UI loads and the served `/api/docs.json` matches [`openapi.json`](openapi.json); the release APK downloaded from GitHub matches the recorded SHA-256; the repository and release open without logging in. Same account through the web rewrite (cookie) and directly as the mobile client (Bearer): project created on web seen by mobile, task created by mobile seen by web, search and filters find it, completion and priority change on web seen by mobile, dashboard counts move by one and return to baseline after the project is deleted (tasks cascade), web logout leaves the mobile session valid, mobile logout revokes its token; 18 of 18 passed. |
 
 ### Main flows (F1 to F8)
 
@@ -122,7 +123,7 @@ Automated tests run against a local database. These checks cover the real browse
 
 ## 7. Non-functional requirements review
 
-Review against [requirements.md](requirements.md) in Phase 9. "Later phase" items are part of the release, documentation and submission phases.
+Review against [requirements.md](requirements.md) in Phase 9, updated through Phase 12. "Pending" items need a manual step outside the repository.
 
 | Req | Status | Evidence |
 |---|---|---|
@@ -144,4 +145,5 @@ Review against [requirements.md](requirements.md) in Phase 9. "Later phase" item
 | SUB-02, SUB-04 | verified | ER diagram in [database-design.md](database-design.md); URLs in [deployment.md](deployment.md) |
 | SUB-03 | verified | Swagger UI and OpenAPI JSON served in production; exported file [`openapi.json`](openapi.json) identical to the served document (section 6) |
 | SUB-05 | verified | APK link and SHA-256 in [deployment.md](deployment.md), section 7 |
-| SUB-01, SUB-06 | later phase | Repository visibility and screen recording are part of submission |
+| SUB-01 | verified | Repository and release open without logging in (Phase 12, section 6) |
+| SUB-06 | pending | Screen recording, made manually for submission |
