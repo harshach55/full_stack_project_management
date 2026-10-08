@@ -1,7 +1,7 @@
 # ADR-0004: Web authentication through a same-origin API rewrite
 
 - Status: accepted, with pending validation
-- Pending validation: header forwarding through the deployed Vercel rewrite (`Origin`, `Set-Cookie`, client IP); the route-handler proxy is the fallback if it fails (Phase 8 and 10).
+- Pending validation: header forwarding through the deployed Vercel rewrite (`Origin`, `Set-Cookie`, client IP); the route-handler proxy is the fallback if it fails (Phase 8 and 10). Verified locally in Phase 6 with `next start`: the session cookie is set for the web origin (host-only, httpOnly, SameSite=Lax), and `Origin`, methods and JSON bodies reach the API unchanged (a foreign Origin is rejected with 403). The local Next.js server passes a client-supplied `X-Forwarded-For` through unchanged and does not add the caller's address; the rate-limit design does not depend on it (ADR-0010).
 - Date: 2026-10-08
 
 ## Context

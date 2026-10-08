@@ -5,7 +5,8 @@ A project and task management application with a responsive web app and an Andro
 ## Status
 
 - Backend API (`apps/api`) and shared validation package (`packages/shared`): implemented and tested. See [apps/api/README.md](apps/api/README.md).
-- Web app (`apps/web`) and Android app (`apps/mobile`): not started yet.
+- Web app (`apps/web`): implemented and tested. See [apps/web/README.md](apps/web/README.md).
+- Android app (`apps/mobile`): not started yet.
 
 ## Planned stack
 

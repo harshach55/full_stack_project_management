@@ -13,6 +13,7 @@
 | `/projects/[id]/edit` | Edit project | protected | Project form pre-filled |
 | `/tasks` | All tasks | protected | Tasks across projects, search, status and priority filters |
 | `/tasks/new?projectId=` | Create task | protected | Task form (project chosen from the user's projects) |
+| `/tasks/[id]` | Task detail | protected | Task info, quick actions (complete, status, priority), edit and delete |
 | `/tasks/[id]/edit` | Edit task | protected | Task form pre-filled (project shown, not editable) |
 
 Shared layout for protected pages: header with app name, navigation (Dashboard, Projects, Tasks), current user name and logout.
