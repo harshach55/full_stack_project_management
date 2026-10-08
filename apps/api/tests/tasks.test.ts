@@ -137,6 +137,25 @@ describe('list, search and filter', () => {
     expect(await names('search=COPY')).toEqual(['Review copy', 'Write homepage copy']);
   });
 
+  it('treats SQL-like text, % and _ in task search literally, never across users', async () => {
+    const sqlLike = "Robert'); DROP TABLE tasks; --";
+    await createTask(ctx.app, alice.token, aliceProject.id, { name: 'Budget 100% check' });
+    await createTask(ctx.app, alice.token, aliceProject.id, { name: 'deploy_script' });
+    await createTask(ctx.app, alice.token, aliceProject.id, { name: sqlLike });
+    await createTask(ctx.app, bob.token, bobProject.id, { name: 'Bob 100% deploy_x' });
+    const sorted = async (query: string) => (await names(query)).sort();
+
+    // % and _ match only themselves, not "any text" / "any character".
+    expect(await sorted('search=%25')).toEqual(['Budget 100% check']);
+    expect(await sorted('search=_')).toEqual(['deploy_script']);
+    // A classic injection string matches nothing and changes nothing.
+    expect(await names(`search=${encodeURIComponent("' OR 1=1 --")}`)).toEqual([]);
+    // The stored SQL-like name is found by a literal search for part of it and for all of it.
+    expect(await names(`search=${encodeURIComponent('DROP TABLE')}`)).toEqual([sqlLike]);
+    expect(await names(`search=${encodeURIComponent(sqlLike)}`)).toEqual([sqlLike]);
+    expect(await ctx.prisma.task.count()).toBe(8);
+  });
+
   it('filters by status, priority and combinations', async () => {
     expect(await names('status=COMPLETED')).toEqual(['Review copy']);
     expect(await names('priority=HIGH')).toEqual(['Set up CI', 'Write homepage copy']);

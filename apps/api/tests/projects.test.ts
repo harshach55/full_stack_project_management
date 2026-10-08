@@ -169,6 +169,23 @@ describe('update (full replacement)', () => {
       .send({ name: 'P', description: null, status: 'NOT_STARTED', startDate: '2026-05-02', endDate: '2026-05-01' })
       .expect(400);
   });
+
+  it.each([
+    ['ownerId', { ownerId: randomUUID() }],
+    ['id', { id: randomUUID() }],
+    ['createdAt', { createdAt: '2026-01-01T00:00:00.000Z' }],
+  ])('rejects the server-owned field %s and changes nothing', async (field, extra) => {
+    const project = await createProject(ctx.app, alice.token, { name: 'Owned' });
+    const before = await ctx.prisma.project.findUnique({ where: { id: project.id } });
+    const body = { name: 'Changed', description: null, status: 'COMPLETED', startDate: null, endDate: null, ...extra };
+    const res = await request(ctx.app).put(`/api/projects/${project.id}`).set(bearer(alice.token)).send(body).expect(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+    expect(res.body.error.details.map((d: { path: string }) => d.path)).toContain(field);
+
+    const after = await ctx.prisma.project.findUnique({ where: { id: project.id } });
+    expect(after).toEqual(before);
+    expect(after?.ownerId).toBe(alice.userId);
+  });
 });
 
 describe('ownership isolation', () => {

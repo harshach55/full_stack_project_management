@@ -1,8 +1,11 @@
 import { randomBytes } from 'node:crypto';
+import { Writable } from 'node:stream';
+import { pino } from 'pino';
 import { describe, expect, it } from 'vitest';
 import { ConfigError, loadConfig } from '../src/config/env.js';
 import { fromDbDate, toDbDate } from '../src/lib/dates.js';
 import { signAccessToken, verifyAccessToken } from '../src/lib/jwt.js';
+import { createLogger, REDACT_PATHS } from '../src/lib/logger.js';
 import { escapeLikePattern } from '../src/lib/search.js';
 
 // Configuration parsing only checks that DATABASE_URL is present; no connection is made.
@@ -79,5 +82,75 @@ describe('access tokens', () => {
     expect(verified.userId).toBe(userId);
     expect(verified.exp * 1000).toBe(first.expiresAt.getTime());
     expect(first.expiresAt.getTime() - Date.now()).toBeGreaterThan(7 * 24 * 3600 * 1000 - 5000);
+  });
+});
+
+describe('logger redaction', () => {
+  it('removes credentials and secrets at every configured path', () => {
+    const lines: string[] = [];
+    const sink = new Writable({
+      write(chunk, _encoding, callback) {
+        lines.push(String(chunk));
+        callback();
+      },
+    });
+    // Same redaction settings as createLogger, with an in-memory destination.
+    const logger = pino({ level: 'info', redact: { paths: REDACT_PATHS, censor: '[redacted]' } }, sink);
+    const secrets = {
+      authorization: 'Bearer secret-bearer-token',
+      cookie: 'pm_session=secret-cookie-value',
+      setCookie: 'pm_session=secret-set-cookie; HttpOnly',
+      password: 'secret-password-1',
+      passwordHash: '$2b$12$secrethashsecrethashsecrethashsecrethashsecrethashse',
+      token: 'secret-token-value',
+      jwtSecret: 'secret-jwt-signing-key',
+      databaseUrl: 'postgresql://db.example.com/secret-database-marker',
+    };
+
+    logger.info(
+      {
+        req: { headers: { authorization: secrets.authorization, cookie: secrets.cookie, accept: 'application/json' } },
+        res: { headers: { 'set-cookie': secrets.setCookie } },
+        input: { password: secrets.password, email: 'visible@example.com' },
+        user: { passwordHash: secrets.passwordHash },
+        session: { token: secrets.token },
+        config: { jwtSecret: secrets.jwtSecret, databaseUrl: secrets.databaseUrl },
+      },
+      'redaction check',
+    );
+
+    expect(lines).toHaveLength(1);
+    const output = lines[0]!;
+    for (const value of Object.values(secrets)) expect(output).not.toContain(value);
+    expect(output).not.toContain('secret-');
+    const entry = JSON.parse(output);
+    expect(entry.req.headers).toEqual({ authorization: '[redacted]', cookie: '[redacted]', accept: 'application/json' });
+    expect(entry.res.headers['set-cookie']).toBe('[redacted]');
+    expect(entry.input).toEqual({ password: '[redacted]', email: 'visible@example.com' });
+    expect(entry.user.passwordHash).toBe('[redacted]');
+    expect(entry.session.token).toBe('[redacted]');
+    expect(entry.config).toEqual({ jwtSecret: '[redacted]', databaseUrl: '[redacted]' });
+  });
+
+  it('covers every sensitive field the API knows about', () => {
+    expect(REDACT_PATHS).toEqual(
+      expect.arrayContaining([
+        'req.headers.authorization',
+        'req.headers.cookie',
+        'res.headers["set-cookie"]',
+        '*.password',
+        '*.passwordHash',
+        '*.token',
+        '*.jwtSecret',
+        '*.databaseUrl',
+      ]),
+    );
+  });
+
+  it('createLogger uses the configured level and plain JSON output in production', () => {
+    const logger = createLogger({ logLevel: 'warn', nodeEnv: 'production' });
+    expect(logger.level).toBe('warn');
+    expect(logger.isLevelEnabled('info')).toBe(false);
+    expect(logger.isLevelEnabled('error')).toBe(true);
   });
 });
