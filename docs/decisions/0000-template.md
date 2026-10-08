@@ -1,6 +1,7 @@
 # ADR-NNNN: Title
 
-- Status: proposed | accepted | superseded by ADR-XXXX
+- Status: proposed | accepted | accepted, with pending validation | superseded by ADR-XXXX
+- Pending validation: (only when parts of the decision depend on a later technical check)
 - Date: YYYY-MM-DD
 
 ## Context
@@ -16,6 +17,14 @@ What was chosen.
 - Option A: why it was not chosen
 - Option B: why it was not chosen
 
+## Decision rationale
+
+Why the chosen option fits the requirements and constraints better than the alternatives.
+
+## Tradeoffs
+
+What is given up or made harder by this choice.
+
 ## Consequences
 
-Tradeoffs, risks and follow-up work that result from this decision.
+Follow-up work, constraints on later phases and risks that result from this decision.

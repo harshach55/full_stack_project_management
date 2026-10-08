@@ -8,9 +8,27 @@ Planning and design documents for the Project Management System (web, Android, s
 | [scope-and-decisions.md](scope-and-decisions.md) | Scope boundaries, product decisions and assumptions |
 | [traceability-matrix.md](traceability-matrix.md) | Requirement to endpoint, screen and test mapping |
 | [user-flows.md](user-flows.md) | Screen inventory and main user flows for web and mobile |
+| [architecture.md](architecture.md) | System architecture: components, flows, security, deployment, environment, testing, risks |
 | [decisions/](decisions/) | Architecture decision records (ADRs) |
 
-Later phases add architecture, database (ER diagram), API contract, testing and deployment documents to this folder.
+## Architecture decision records
+
+| ADR | Decision |
+|---|---|
+| [0001](decisions/0001-monorepo-architecture.md) | Monorepo with pnpm workspaces |
+| [0002](decisions/0002-backend-layering.md) | Backend layering by feature module |
+| [0003](decisions/0003-authentication-architecture.md) | JWT access tokens with per-token revocation |
+| [0004](decisions/0004-web-authentication.md) | Web authentication through a same-origin API rewrite |
+| [0005](decisions/0005-mobile-authentication.md) | Mobile authentication with Bearer tokens and SecureStore |
+| [0006](decisions/0006-api-design.md) | REST API conventions and documentation |
+| [0007](decisions/0007-database-access.md) | Database access with Prisma 6 and Supabase PostgreSQL |
+| [0008](decisions/0008-shared-package.md) | Shared package for schemas and types |
+| [0009](decisions/0009-error-handling.md) | Centralized error handling and error codes |
+| [0010](decisions/0010-security-architecture.md) | Security architecture |
+| [0011](decisions/0011-deployment-architecture.md) | Deployment architecture |
+| [0012](decisions/0012-client-application-architecture.md) | Client application architecture (web and mobile) |
+
+Later phases add database (ER diagram), API contract, testing and deployment documents to this folder.
 
 ## Conventions
 
