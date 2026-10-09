@@ -30,6 +30,20 @@ The API runs on Render's free tier and sleeps after inactivity, so the first req
 
 The APK talks to the production API above. To install it, download it on an Android phone and allow installation from that source when asked. Build details and the device checks it passed are in [docs/deployment.md](docs/deployment.md#release-build-eas).
 
+## Submission deliverables
+
+All seven deliverables listed in the assessment are complete.
+
+| # | Deliverable | Status | Location |
+|---|---|---|---|
+| 1 | Public GitHub repository | Completed | https://github.com/harshach55/full_stack_project_management |
+| 2 | Database schema / ER diagram | Completed | [docs/database-design.md](docs/database-design.md#5-entity-relationship-diagram), section 5; Prisma schema in [apps/api/prisma/schema.prisma](apps/api/prisma/schema.prisma) |
+| 3 | API documentation | Completed | [Swagger UI](https://pm-api-lb5m.onrender.com/api/docs), [OpenAPI JSON](https://pm-api-lb5m.onrender.com/api/docs.json), exported [docs/openapi.json](docs/openapi.json), [API contract](docs/api-contract.md) |
+| 4 | README | Completed | This file |
+| 5 | Web and backend deployment URLs | Completed | [Live deployment](#live-deployment) |
+| 6 | Android APK | Completed | [Android release](#android-release) |
+| 7 | Five-minute screen recording | Completed and submitted | Video demonstration: Submitted separately |
+
 ## Technology
 
 | Area | Stack |

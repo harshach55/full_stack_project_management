@@ -123,7 +123,7 @@ Automated tests run against a local database. These checks cover the real browse
 
 ## 7. Non-functional requirements review
 
-Review against [requirements.md](requirements.md) in Phase 9, updated through Phase 12. "Pending" items need a manual step outside the repository.
+Review against [requirements.md](requirements.md) in Phase 9, updated through Phase 12.
 
 | Req | Status | Evidence |
 |---|---|---|
@@ -146,4 +146,4 @@ Review against [requirements.md](requirements.md) in Phase 9, updated through Ph
 | SUB-03 | verified | Swagger UI and OpenAPI JSON served in production; exported file [`openapi.json`](openapi.json) identical to the served document (section 6) |
 | SUB-05 | verified | APK link and SHA-256 in [deployment.md](deployment.md), section 7 |
 | SUB-01 | verified | Repository and release open without logging in (Phase 12, section 6) |
-| SUB-06 | pending | Screen recording, made manually for submission |
+| SUB-06 | done | Five-minute screen recording completed and submitted separately (not stored in the repository) |
