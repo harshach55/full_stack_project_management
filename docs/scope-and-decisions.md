@@ -20,14 +20,14 @@ A project management system where a user registers once and manages projects and
 
 Optional features are added only after all mandatory requirements are complete, and only if they are clearly useful.
 
-| Feature | Plan |
+| Feature | Status |
 |---|---|
-| Automated tests (unit/integration) | Planned. Treated as part of the quality bar, built alongside the API. |
-| Shared validation and types | Planned. Zod schemas in `packages/shared` are part of the agreed stack. |
-| Pagination and sorting | Deferred. Lists use a fixed default order (PD-08). Revisit if lists become large. |
-| Docker (local/test database) | Candidate. Useful for running tests against a disposable PostgreSQL. |
-| CI pipeline | Candidate, after tests exist. |
-| Refresh tokens, RBAC, audit logs, push notifications, offline task viewing | Out of scope unless time remains. |
+| Automated tests (unit/integration) | Done. Vitest unit and integration tests in every package ([testing.md](testing.md)). |
+| Shared validation and types | Done. Zod schemas, enums and types in `packages/shared`, used by the API, web and mobile apps. |
+| Pagination and sorting | Not implemented. Lists use a fixed default order (PD-13). Revisit if lists become large. |
+| Docker (local/test database) | Done for the database only. `docker-compose.yml` runs PostgreSQL for development and tests; the apps are not containerized. |
+| CI pipeline | Not implemented. |
+| Refresh tokens, RBAC, audit logs, push notifications, offline task viewing | Not implemented (out of scope). |
 
 ## 4. Out of scope
 
